@@ -5,6 +5,7 @@ use serde::{de::DeserializeOwned, Serialize};
 
 use crate::constants::{SOUNDCLOUD_URL, SOUNDCLOUD_API_URL};
 
+#[derive(Debug)]
 pub struct Client {
     client_id: String,
 }
@@ -25,7 +26,7 @@ impl Client {
         &self,
         path: &str,
         query: Option<&Q>,
-    ) -> Result<R, reqwest::Error> {
+    ) -> Result<R, Box<dyn Error>> {
         let url = format!(
             "{}/{}",
             SOUNDCLOUD_API_URL,
@@ -40,8 +41,11 @@ impl Client {
         request = request.query(&[("client_id", &self.client_id)]);
 
         let response = request.send().await?;
-        let body = response.json::<R>().await?;
-    
+        // let body = response.json::<R>().await?;
+        let body = response.text().await?;
+        println!("URL: {}", url);
+        println!("Body: {}", body);
+        let body: R = serde_json::from_str(&body)?;
         Ok(body)
     }
 
