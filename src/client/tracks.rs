@@ -2,8 +2,7 @@
 use std::error::Error;
 use crate::client::client::Client;
 use crate::models::query::tracks::{TracksQuery, Paging};
-use crate::models::response::tracks::{Comments, Streams, Track, Tracks};
-use crate::models::response::users::Users;
+use crate::models::response::tracks::{Track, Tracks};
 
 impl Client {
     pub async fn get_tracks(&self, query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>> {

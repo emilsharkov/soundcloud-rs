@@ -40,12 +40,19 @@ impl Client {
         }
         request = request.query(&[("client_id", &self.client_id)]);
 
-        let response = request.send().await?;
-        // let body = response.json::<R>().await?;
+        let response = request.send().await.map_err(|e| {
+            println!("Error sending request: {}", e);
+            Box::new(e) as Box<dyn Error>
+        })?;
+
         let body = response.text().await?;
-        println!("URL: {}", url);
         println!("Body: {}", body);
-        let body: R = serde_json::from_str(&body)?;
+        println!("Bello");
+        let body: R = serde_json::from_str(&body).unwrap();
+        // let body = response.json::<R>().await.map_err(|e| {
+        //     println!("Error parsing SoundCloud API response: {}", e);
+        //     Box::new(e) as Box<dyn Error>
+        // })?;
         Ok(body)
     }
 

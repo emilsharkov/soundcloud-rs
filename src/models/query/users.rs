@@ -7,6 +7,5 @@ pub struct UsersQuery {
     pub urns: Option<String>,
     pub limit: Option<u32>,
     pub offset: Option<u32>,
-    #[serde(rename = "linked_partitioning")]
     pub linked_partitioning: Option<bool>,
 }
