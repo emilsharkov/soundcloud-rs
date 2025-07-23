@@ -1,9 +1,7 @@
 use std::error::Error;
 use crate::client::client::Client;
-use crate::models::query::playlists::PlaylistsQuery;
-use crate::models::query::tracks::Paging;
-use crate::models::response::playlists::{Playlist, Playlists};
-use crate::models::response::users::Users;
+use crate::models::query::{PlaylistsQuery, Paging};
+use crate::models::response::{Playlist, Playlists, Users};
 
 impl Client {
     pub async fn get_playlists(&self, query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>> {

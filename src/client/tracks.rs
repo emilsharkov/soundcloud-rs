@@ -1,8 +1,8 @@
 // src/tracks.rs
 use std::error::Error;
 use crate::client::client::Client;
-use crate::models::query::tracks::{TracksQuery, Paging};
-use crate::models::response::tracks::{Track, Tracks};
+use crate::models::query::{TracksQuery, Paging};
+use crate::models::response::{Track, Tracks};
 
 impl Client {
     pub async fn get_tracks(&self, query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>> {

@@ -1,8 +1,7 @@
 use std::error::Error;
 
 use tokio;
-use soundcloud::{client::client, models::query::tracks::TracksQuery};
-use client::Client;
+use soundcloud::Client;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

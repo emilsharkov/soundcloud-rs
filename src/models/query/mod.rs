@@ -1,3 +1,7 @@
-pub mod tracks;
-pub mod users;
-pub mod playlists;
+mod tracks;
+mod users;
+mod playlists;
+
+pub use tracks::*;
+pub use users::*;
+pub use playlists::*;
