@@ -12,5 +12,4 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct PagingCollection<T> {
     pub collection: Vec<T>,
-    pub next_href: Option<String>,
 }

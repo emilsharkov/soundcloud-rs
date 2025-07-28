@@ -1,13 +1,12 @@
 use std::error::Error;
-
 use regex::Regex;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::constants::{SOUNDCLOUD_URL, SOUNDCLOUD_API_URL};
+use crate::{constants::{SOUNDCLOUD_API_URL, SOUNDCLOUD_URL}};
 
 #[derive(Debug)]
 pub struct Client {
-    client_id: String,
+    pub client_id: String,
 }
 
 impl Client {
@@ -22,38 +21,47 @@ impl Client {
         Err("Client ID not found".into())
     }
 
+    pub async fn get_json<R: DeserializeOwned, Q: Serialize>(
+        base_url: &str,
+        path: Option<&str>,
+        query: Option<&Q>,
+        client_id: &str,
+    ) -> Result<R, Box<dyn Error>> {
+        let url = match path {
+            Some(path) => format!("{}/{}", base_url.trim_end_matches('/'), path.trim_start_matches('/')),
+            None => base_url.to_string(),
+        };
+    
+        let client = reqwest::Client::new();
+        let mut request = client.get(&url);
+    
+        if let Some(q) = query {
+            request = request.query(q);
+        }
+        request = request.query(&[("client_id", client_id)]);
+    
+        let response = request.send().await.map_err(|e| {
+            println!("Error sending request: {}", e);
+            Box::new(e) as Box<dyn Error>
+        })?;
+    
+        // let text = response.text().await?;
+        // println!("Text: {:?}", text);
+        // let body = serde_json::from_str::<R>(&text)?;
+        let body = response.json::<R>().await.map_err(|e| {
+            println!("Error parsing response: {}", e);
+            Box::new(e) as Box<dyn Error>
+        })?;
+    
+        Ok(body)
+    }
+
     pub async fn get<Q: Serialize, R: DeserializeOwned>(
         &self,
         path: &str,
         query: Option<&Q>,
     ) -> Result<R, Box<dyn Error>> {
-        let url = format!(
-            "{}/{}",
-            SOUNDCLOUD_API_URL,
-            path.trim_start_matches('/')
-        );
-
-        let client = reqwest::Client::new();
-        let mut request = client.get(&url);
-        if let Some(query) = query {
-            request = request.query(query);
-        }
-        request = request.query(&[("client_id", &self.client_id)]);
-
-        let response = request.send().await.map_err(|e| {
-            println!("Error sending request: {}", e);
-            Box::new(e) as Box<dyn Error>
-        })?;
-
-        let body = response.text().await?;
-        println!("Body: {}", body);
-        println!("Bello");
-        let body: R = serde_json::from_str(&body).unwrap();
-        // let body = response.json::<R>().await.map_err(|e| {
-        //     println!("Error parsing SoundCloud API response: {}", e);
-        //     Box::new(e) as Box<dyn Error>
-        // })?;
-        Ok(body)
+        Self::get_json(SOUNDCLOUD_API_URL, Some(path), query, &self.client_id).await
     }
 
     async fn get_script_urls() -> Result<Vec<String>, Box<dyn Error>> {

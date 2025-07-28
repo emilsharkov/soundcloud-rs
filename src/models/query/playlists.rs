@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct PlaylistsQuery {
     pub q: Option<String>,
     pub access: Option<String>,

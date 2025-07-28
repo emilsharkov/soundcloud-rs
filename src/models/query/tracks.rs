@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct TracksQuery {
     pub q: Option<String>,
     pub ids: Option<String>,
@@ -16,26 +16,7 @@ pub struct TracksQuery {
     pub linked_partitioning: Option<bool>,
 }
 
-
-#[derive(Debug, Serialize)]
-pub struct BpmRange {
-    pub from: Option<u32>,
-    pub to: Option<u32>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct DurationRange {
-    pub from: Option<u32>,
-    pub to: Option<u32>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct DateRange {
-    pub from: Option<String>,
-    pub to: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Default)]
 pub struct Paging {
     pub limit: Option<u32>,
     pub offset: Option<u32>,
