@@ -1386,7 +1386,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "soundcloud"
+name = "soundcloud-rs"
 version = "0.1.0"
 dependencies = [
  "ffmpeg-sidecar",

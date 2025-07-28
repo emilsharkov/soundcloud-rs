@@ -1,7 +1,9 @@
 [package]
-name = "soundcloud"
+name = "soundcloud-rs"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "A simple Rust client for the SoundCloud API"
 
 [dependencies]
 regex = "1.11.1"
