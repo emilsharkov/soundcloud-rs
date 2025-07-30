@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         limit: Some(5),
         ..Default::default()
     };
-    let tracks = client.get_tracks(Some(&query)).await?;
+    let tracks = client.search_tracks(Some(&query)).await?;
     let first_track = tracks.collection.first().unwrap();
     
     // Get a specific track
@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         limit: Some(3),
         ..Default::default()
     };
-    let playlists = client.get_playlists(Some(&query)).await?;
+    let playlists = client.search_playlists(Some(&query)).await?;
     let first_playlist = playlists.collection.first().unwrap();
     
     // Get a specific playlist
@@ -105,9 +105,17 @@ Generic method for making GET requests to the SoundCloud API.
 #### `get_json<R: DeserializeOwned, Q: Serialize>(base_url: &str, path: Option<&str>, query: Option<&Q>, client_id: &str) -> Result<R, Box<dyn Error>>`
 Static method for making JSON GET requests with custom base URL and client ID.
 
+### Search Methods
+
+#### `get_search_results(query: Option<&SearchResultsQuery>) -> Result<SearchResultsResponse, Box<dyn Error>>`
+Get search results using the search queries endpoint.
+
+#### `search_all(query: Option<&SearchAllQuery>) -> Result<SearchAllResponse, Box<dyn Error>>`
+Perform a comprehensive search across all content types.
+
 ### Track Methods
 
-#### `get_tracks(query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>>`
+#### `search_tracks(query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>>`
 Search for tracks using optional query parameters.
 
 #### `get_track_by_id(id: &str) -> Result<Track, Box<dyn Error>>`
@@ -127,7 +135,7 @@ Download a track to a local file. Supports both HLS and Progressive stream types
 
 ### Playlist Methods
 
-#### `get_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`
+#### `search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`
 Search for playlists using optional query parameters.
 
 #### `get_playlist_by_id(id: &str) -> Result<Playlist, Box<dyn Error>>`
@@ -145,9 +153,14 @@ Get users who reposted a playlist by URN with optional pagination.
 #### `download_playlist(playlist: &Playlist, destination: Option<&str>, playlist_name: Option<&str>) -> Result<(), Box<dyn Error>>`
 Download all tracks in a playlist to a local directory.
 
+### Album Methods
+
+#### `search_albums(query: Option<&AlbumQuery>) -> Result<Playlists, Box<dyn Error>>`
+Search for albums using optional query parameters.
+
 ### User Methods
 
-#### `get_users(query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>>`
+#### `search_users(query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>>`
 Search for users using optional query parameters.
 
 #### `get_user_by_id(id: &str) -> Result<User, Box<dyn Error>>`

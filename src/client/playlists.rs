@@ -5,7 +5,7 @@ use crate::models::query::{PlaylistsQuery, Paging};
 use crate::models::response::{Playlist, Playlists, Users};
 
 impl Client {
-    pub async fn get_playlists(&self, query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>> {
+    pub async fn search_playlists(&self, query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>> {
         let resp: Playlists = self.get("search/playlists", query).await?;
         Ok(resp)
     }

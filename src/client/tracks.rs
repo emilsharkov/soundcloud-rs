@@ -9,7 +9,7 @@ use crate::models::response::{Track, Tracks};
 use crate::response::{Stream, StreamType, Transcoding};
 
 impl Client {
-    pub async fn get_tracks(&self, query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>> {
+    pub async fn search_tracks(&self, query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>> {
         let tracks: Tracks = self.get("search/tracks", query).await?;
         Ok(tracks)
     }

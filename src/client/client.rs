@@ -46,7 +46,7 @@ impl Client {
         })?;
     
         // let text = response.text().await?;
-        // println!("Text: {:?}", text);
+        // println!("{:?}", text);
         // let body = serde_json::from_str::<R>(&text)?;
         let body = response.json::<R>().await.map_err(|e| {
             println!("Error parsing response: {}", e);
