@@ -2,15 +2,6 @@
 
 A Rust client for interacting with the SoundCloud API. This library provides a comprehensive interface for searching, retrieving, and downloading content from SoundCloud.
 
-## Installation
-
-Add this to your `Cargo.toml`:
-
-```toml
-[dependencies]
-soundcloud = "0.1.0"
-```
-
 ## Examples
 
 ### Search, get, and download a track
