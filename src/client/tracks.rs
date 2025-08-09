@@ -47,6 +47,45 @@ impl Client {
             None => track.title.as_ref().unwrap(),
         };
 
+        
+
+        let output_path = match destination {
+            Some(destination) => PathBuf::from(destination).join(format!("{}.mp3", title)),
+            None => PathBuf::from(format!("{}.mp3", title)),
+        };
+        if let Some(parent) = output_path.parent() {
+            if !parent.exists() {
+                std::fs::create_dir_all(parent)?;
+            }
+        }
+
+        let transcoding = Self::get_transcoding_by_stream_type(track, stream_type).await?;
+        let stream_url = Self::get_stream_url(track, stream_type, &self.client_id).await?;
+
+        match transcoding.format.as_ref().unwrap().protocol.as_ref() {
+            Some(StreamType::Progressive) => self.download_progressive(&stream_url, &output_path).await?,
+            Some(StreamType::Hls) => self.download_hls(&stream_url, &output_path).await?,
+            _ => return Err("Invalid Stream Type".into()),
+        }
+
+        Ok(())
+    }
+
+    pub async fn get_stream_url(
+        track: &Track,
+        stream_type: Option<StreamType>,
+        client_id: &str,
+    ) -> Result<String, Box<dyn Error>> {
+        let transcoding = Self::get_transcoding_by_stream_type(track, stream_type).await?;
+        let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
+        let stream: Stream = Self::get_json(path, None, None::<&()>, client_id).await?;
+        stream.url.ok_or("Missing resolved stream URL".into())
+    }
+
+    async fn get_transcoding_by_stream_type(
+        track: &Track,
+        stream_type: Option<StreamType>,
+    ) -> Result<Transcoding, Box<dyn Error>> {
         let transcodings = track.media.as_ref().unwrap().transcodings.as_ref().unwrap();
         if transcodings.is_empty() {
             return Err("No available download options".into());
@@ -60,41 +99,20 @@ impl Client {
         if transcoding.is_none() {
             return Err("No available download options".into());
         }
-
-        let output_path = match destination {
-            Some(destination) => PathBuf::from(destination).join(format!("{}.mp3", title)),
-            None => PathBuf::from(format!("{}.mp3", title)),
-        };
-        if let Some(parent) = output_path.parent() {
-            if !parent.exists() {
-                std::fs::create_dir_all(parent)?;
-            }
-        }
-
-        let transcoding = transcoding.unwrap();
-        match transcoding.format.as_ref().unwrap().protocol.as_ref() {
-            Some(StreamType::Progressive) => self.download_progressive(&transcoding, &output_path).await?,
-            Some(StreamType::Hls) => self.download_hls(&transcoding, &output_path).await?,
-            _ => return Err("Invalid Stream Type".into()),
-        }
-
-        Ok(())
+        Ok(transcoding.unwrap().clone())
     }
 
-    async fn download_progressive(&self, transcoding: &Transcoding, output_path: &PathBuf) -> Result<(), Box<dyn Error>> {
-        let url = Self::get_stream_url(transcoding, &self.client_id).await?;
-        let response = reqwest::get(&url).await?;
+    async fn download_progressive(&self, stream_url: &str, output_path: &PathBuf) -> Result<(), Box<dyn Error>> {
+        let response = reqwest::get(stream_url).await?;
         let bytes = response.bytes().await?;
         tokio::fs::write(output_path, &bytes).await?;
         Ok(())
     }
 
-    async fn download_hls(&self, transcoding: &Transcoding, output_path: &PathBuf) -> Result<(), Box<dyn Error>> {
-        let url = Self::get_stream_url(transcoding, &self.client_id).await?;
+    async fn download_hls(&self, stream_url: &str, output_path: &PathBuf) -> Result<(), Box<dyn Error>> {
         download::auto_download()?;
-        
         let status = FfmpegCommand::new()
-            .input(&url)
+            .input(stream_url)
             .output(output_path.to_str().unwrap())
             .args(["-c", "copy"])
             .spawn()?
@@ -104,14 +122,5 @@ impl Client {
             return Err("Download HLS Failed".into());
         }
         Ok(())
-    }
-
-    async fn get_stream_url(
-        transcoding: &Transcoding,
-        client_id: &str,
-    ) -> Result<String, Box<dyn Error>> {
-        let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
-        let stream: Stream = Self::get_json(path, None, None::<&()>, client_id).await?;
-        stream.url.ok_or("Missing resolved stream URL".into())
     }
 }

@@ -4,7 +4,7 @@ use crate::models::response::{users::UserSummary, PagingCollection, tracks::Trac
 
 pub type Playlists = PagingCollection<Playlist>;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Playlist {
     pub title: Option<String>,
     pub id: Option<i32>,

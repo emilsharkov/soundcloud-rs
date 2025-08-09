@@ -124,6 +124,9 @@ Get related tracks for a track by URN with optional pagination.
 #### `download_track(track: &Track, stream_type: Option<StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>>`
 Download a track to a local file. Supports both HLS and Progressive stream types.
 
+#### `get_stream_url(track: &Track, stream_type: Option<StreamType>, client_id: &str) -> Result<String, Box<dyn Error>>`
+Get the resolved stream URL for a track with the specified stream type and client ID.
+
 ### Playlist Methods
 
 #### `search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`
