@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::response::PagingCollection;
 
 pub type Users = PagingCollection<User>;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {
     pub avatar_url: Option<String>,
     pub city: Option<String>,
@@ -41,31 +41,31 @@ pub struct User {
     pub date_of_birth: Option<DateOfBirth>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CreatorSubscriptionWrapper {
     pub product: Product,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Product {
     pub id: String,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Visuals {
     pub urn: Option<String>,
     pub enabled: Option<bool>,
     pub visuals: Option<Vec<VisualEntry>>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VisualEntry {
     pub urn: Option<String>,
     pub entry_time: Option<u32>,
     pub visual_url: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Badges {
     pub pro: Option<bool>,
     pub creator_mid_tier: Option<bool>,
@@ -73,14 +73,14 @@ pub struct Badges {
     pub verified: Option<bool>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DateOfBirth {
     pub month: Option<u8>,
     pub year: Option<u16>,
     pub day: Option<u8>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct UserSummary {
     pub id: Option<u64>,
     pub username: Option<String>,

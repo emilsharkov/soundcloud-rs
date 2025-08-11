@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::response::{users::UserSummary, PagingCollection, tracks::Track};
 
 pub type Playlists = PagingCollection<Playlist>;
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Playlist {
     pub title: Option<String>,
     pub id: Option<i32>,

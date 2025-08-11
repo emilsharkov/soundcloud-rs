@@ -1,6 +1,6 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct TracksQuery {
     pub q: Option<String>,
     pub ids: Option<String>,
@@ -16,7 +16,7 @@ pub struct TracksQuery {
     pub linked_partitioning: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 pub struct Paging {
     pub limit: Option<u32>,
     pub offset: Option<u32>,
