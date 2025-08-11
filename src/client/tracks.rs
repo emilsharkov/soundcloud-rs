@@ -38,7 +38,7 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn download_track(&self, track: &Track, stream_type: Option<StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>> {
+    pub async fn download_track(&self, track: &Track, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>> {
         if track.title.is_none() {
             return Err("Track title is missing".into());
         }
@@ -73,7 +73,7 @@ impl Client {
 
     pub async fn get_stream_url(
         track: &Track,
-        stream_type: Option<StreamType>,
+        stream_type: Option<&StreamType>,
         client_id: &str,
     ) -> Result<String, Box<dyn Error>> {
         let transcoding = Self::get_transcoding_by_stream_type(track, stream_type).await?;
@@ -84,7 +84,7 @@ impl Client {
 
     async fn get_transcoding_by_stream_type(
         track: &Track,
-        stream_type: Option<StreamType>,
+        stream_type: Option<&StreamType>,
     ) -> Result<Transcoding, Box<dyn Error>> {
         let transcodings = track.media.as_ref().unwrap().transcodings.as_ref().unwrap();
         if transcodings.is_empty() {

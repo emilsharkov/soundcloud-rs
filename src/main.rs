@@ -13,6 +13,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
     let tracks = client.search_tracks(Some(&query)).await?;
     let first_track = tracks.collection.first().unwrap();
-    client.download_track(&first_track, Some(StreamType::Progressive), Some("./downloads"), None).await?;
+    client.download_track(&first_track, Some(&StreamType::Progressive), Some("./downloads"), None).await?;
     Ok(())
 } 
