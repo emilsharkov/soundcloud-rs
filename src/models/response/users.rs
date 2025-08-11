@@ -4,7 +4,7 @@ use crate::models::response::PagingCollection;
 
 pub type Users = PagingCollection<User>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct User {
     pub avatar_url: Option<String>,
     pub city: Option<String>,
@@ -41,31 +41,31 @@ pub struct User {
     pub date_of_birth: Option<DateOfBirth>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct CreatorSubscriptionWrapper {
     pub product: Product,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Product {
     pub id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Visuals {
     pub urn: Option<String>,
     pub enabled: Option<bool>,
     pub visuals: Option<Vec<VisualEntry>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct VisualEntry {
     pub urn: Option<String>,
     pub entry_time: Option<u32>,
     pub visual_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Badges {
     pub pro: Option<bool>,
     pub creator_mid_tier: Option<bool>,
@@ -73,14 +73,14 @@ pub struct Badges {
     pub verified: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct DateOfBirth {
     pub month: Option<u8>,
     pub year: Option<u16>,
     pub day: Option<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct UserSummary {
     pub id: Option<u64>,
     pub username: Option<String>,

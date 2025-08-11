@@ -10,7 +10,7 @@ pub use search::*;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct PagingCollection<T> {
     pub collection: Vec<T>,
 }

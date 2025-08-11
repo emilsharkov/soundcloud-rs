@@ -4,7 +4,7 @@ use crate::models::response::{users::UserSummary, PagingCollection};
 
 pub type Tracks = PagingCollection<Track>;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Track {
     pub access: Option<String>,
     pub artwork_url: Option<String>,
@@ -46,19 +46,19 @@ pub struct Track {
     pub waveform_url: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct PublisherMetadata {
     pub id: Option<u64>,
     pub urn: Option<String>,
     pub contains_music: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Media {
     pub transcodings: Option<Vec<Transcoding>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Transcoding {
     pub url: Option<String>,
     pub preset: Option<String>,
@@ -69,13 +69,13 @@ pub struct Transcoding {
     pub is_legacy_transcoding: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct TranscodingFormat {
     pub protocol: Option<StreamType>,
     pub mime_type: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum StreamType {
     Hls,
@@ -84,7 +84,7 @@ pub enum StreamType {
     None,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Stream {
     pub url: Option<String>,
 }
