@@ -75,7 +75,7 @@ pub struct TranscodingFormat {
     pub mime_type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
 pub enum StreamType {
     Hls,
