@@ -1,12 +1,11 @@
-
-mod tracks;
-mod users;
 mod playlists;
 mod search;
-pub use tracks::*;
-pub use users::*;
+mod tracks;
+mod users;
 pub use playlists::*;
 pub use search::*;
+pub use tracks::*;
+pub use users::*;
 
 use serde::{Deserialize, Serialize};
 

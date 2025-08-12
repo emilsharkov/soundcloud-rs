@@ -1387,16 +1387,14 @@ dependencies = [
 
 [[package]]
 name = "soundcloud-rs"
-version = "0.5.0"
+version = "0.6.0"
 dependencies = [
  "ffmpeg-sidecar",
- "futures-util",
  "regex",
  "reqwest",
  "serde",
  "serde_json",
  "tokio",
- "tokio-util",
 ]
 
 [[package]]

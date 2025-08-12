@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::response::{users::UserSummary, PagingCollection, tracks::Track};
+use crate::models::response::{PagingCollection, tracks::Track, users::UserSummary};
 
 pub type Playlists = PagingCollection<Playlist>;
 

@@ -1,8 +1,8 @@
-use std::error::Error;
 use regex::Regex;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
+use std::error::Error;
 
-use crate::{constants::{SOUNDCLOUD_API_URL, SOUNDCLOUD_URL}};
+use crate::constants::{SOUNDCLOUD_API_URL, SOUNDCLOUD_URL};
 
 #[derive(Debug)]
 pub struct Client {
@@ -28,23 +28,27 @@ impl Client {
         client_id: &str,
     ) -> Result<R, Box<dyn Error>> {
         let url = match path {
-            Some(path) => format!("{}/{}", base_url.trim_end_matches('/'), path.trim_start_matches('/')),
+            Some(path) => format!(
+                "{}/{}",
+                base_url.trim_end_matches('/'),
+                path.trim_start_matches('/')
+            ),
             None => base_url.to_string(),
         };
-    
+
         let client = reqwest::Client::new();
         let mut request = client.get(&url);
-    
+
         if let Some(q) = query {
             request = request.query(q);
         }
         request = request.query(&[("client_id", client_id)]);
-    
+
         let response = request.send().await.map_err(|e| {
             println!("Error sending request: {}", e);
             Box::new(e) as Box<dyn Error>
         })?;
-    
+
         // let text = response.text().await?;
         // println!("{:?}", text);
         // let body = serde_json::from_str::<R>(&text)?;
@@ -52,7 +56,7 @@ impl Client {
             println!("Error parsing response: {}", e);
             Box::new(e) as Box<dyn Error>
         })?;
-    
+
         Ok(body)
     }
 
@@ -67,15 +71,18 @@ impl Client {
     async fn get_script_urls() -> Result<Vec<String>, Box<dyn Error>> {
         let response = reqwest::get(SOUNDCLOUD_URL).await?;
         let text = response.text().await?;
-        let re = Regex::new(r#"https?://[^\s"]+\.js"#).unwrap();
-        let urls: Vec<String> = re.find_iter(&text).map(|mat| mat.as_str().to_string()).collect();
+        let re = Regex::new(r#"https?://[^\s"]+\.js"#).expect("Failed to find script URLs");
+        let urls: Vec<String> = re
+            .find_iter(&text)
+            .map(|mat| mat.as_str().to_string())
+            .collect();
         Ok(urls)
     }
 
     async fn find_client_id(url: String) -> Result<Option<String>, Box<dyn Error>> {
         let response = reqwest::get(url).await?;
         let text = response.text().await?;
-        let re = Regex::new(r#"client_id[:=]"?(\w{32})"#).unwrap();
+        let re = Regex::new(r#"client_id[:=]"?(\w{32})"#).expect("Failed to find client ID");
         for cap in re.captures_iter(&text) {
             return Ok(Some(cap[1].to_string()));
         }

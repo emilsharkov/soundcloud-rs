@@ -1,8 +1,8 @@
+mod album;
 mod client;
 mod playlists;
+mod search;
 mod tracks;
 mod users;
-mod search;
-mod album;
 
 pub use client::*;

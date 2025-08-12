@@ -1,7 +1,7 @@
-use std::error::Error;
 use crate::client::client::Client;
-use crate::models::query::{UsersQuery, Paging};
-use crate::models::response::{User, Users, Tracks, Playlists};
+use crate::models::query::{Paging, UsersQuery};
+use crate::models::response::{Playlists, Tracks, User, Users};
+use std::error::Error;
 
 impl Client {
     pub async fn search_users(&self, query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>> {
@@ -21,49 +21,81 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_user_followers_by_id(&self, id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>> {
+    pub async fn get_user_followers_by_id(
+        &self,
+        id: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{}/followers", id);
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_followers_by_urn(&self, urn: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>> {
+    pub async fn get_user_followers_by_urn(
+        &self,
+        urn: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{}/followers", urn);
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_followings_by_id(&self, id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>> {
+    pub async fn get_user_followings_by_id(
+        &self,
+        id: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{}/followings", id);
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_followings_by_urn(&self, urn: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>> {
+    pub async fn get_user_followings_by_urn(
+        &self,
+        urn: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{}/followings", urn);
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_playlists_by_id(&self, id: &str, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>> {
+    pub async fn get_user_playlists_by_id(
+        &self,
+        id: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Playlists, Box<dyn Error>> {
         let url = format!("users/{}/playlists", id);
         let resp: Playlists = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_playlists_by_urn(&self, urn: &str, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>> {
+    pub async fn get_user_playlists_by_urn(
+        &self,
+        urn: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Playlists, Box<dyn Error>> {
         let url = format!("users/{}/playlists", urn);
         let resp: Playlists = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_tracks_by_id(&self, id: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>> {
+    pub async fn get_user_tracks_by_id(
+        &self,
+        id: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Tracks, Box<dyn Error>> {
         let url = format!("users/{}/tracks", id);
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
-    pub async fn get_user_tracks_by_urn(&self, urn: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>> {
+    pub async fn get_user_tracks_by_urn(
+        &self,
+        urn: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Tracks, Box<dyn Error>> {
         let url = format!("users/{}/tracks", urn);
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)

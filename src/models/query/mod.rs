@@ -1,11 +1,11 @@
-mod tracks;
-mod users;
+mod album;
 mod playlists;
 mod search;
-mod album;
+mod tracks;
+mod users;
 
-pub use tracks::*;
-pub use users::*;
+pub use album::*;
 pub use playlists::*;
 pub use search::*;
-pub use album::*;
+pub use tracks::*;
+pub use users::*;

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::response::{users::UserSummary, PagingCollection};
+use crate::models::response::{PagingCollection, users::UserSummary};
 
 pub type Tracks = PagingCollection<Track>;
 
@@ -87,4 +87,11 @@ pub enum StreamType {
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Stream {
     pub url: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Default, Clone)]
+pub struct Waveform {
+    pub samples: Option<Vec<f64>>,
+    pub width: Option<u32>,
+    pub height: Option<u32>,
 }

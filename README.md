@@ -44,10 +44,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Search for tracks
     let query = TracksQuery { q: Some("electronic".to_string()), limit: Some(5), ..Default::default() };
     let tracks = client.search_tracks(Some(&query)).await?;
-    let first_track = tracks.collection.first().unwrap().clone();
+    let first_track = tracks.collection.first().expect("no tracks found").clone();
 
     // Get a specific track
-    let track_id = first_track.id.as_ref().unwrap().to_string();
+    let track_id = first_track.id.as_ref().expect("missing track id").to_string();
     let track = client.get_track_by_id(&track_id).await?;
 
     // Download the track (Progressive example)
@@ -70,10 +70,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Search for playlists
     let query = PlaylistsQuery { q: Some("brazilian funk".to_string()), limit: Some(3), ..Default::default() };
     let playlists = client.search_playlists(Some(&query)).await?;
-    let first_playlist = playlists.collection.first().unwrap().clone();
+    let first_playlist = playlists.collection.first().expect("no playlists found").clone();
 
     // Get a specific playlist
-    let playlist_id = first_playlist.id.as_ref().unwrap().to_string();
+    let playlist_id = first_playlist.id.as_ref().expect("missing playlist id").to_string();
     let playlist = client.get_playlist_by_id(&playlist_id).await?;
 
     // Download the playlist
@@ -130,7 +130,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 - **`get_track_related_by_id(id: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
 - **`get_track_related_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
 - **`download_track(track: &Track, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>>`**
-- **`get_stream_url(track: &Track, stream_type: Option<&StreamType>, client_id: &str) -> Result<String, Box<dyn Error>>`**
+- **`get_stream_url(track: &Track, stream_type: Option<&StreamType>) -> Result<String, Box<dyn Error>>`**
+- **`get_track_waveform(track: &Track) -> Result<Waveform, Box<dyn Error>>`**
 
 ### Playlists
 - **`search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`**
