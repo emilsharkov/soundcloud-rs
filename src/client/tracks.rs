@@ -74,7 +74,7 @@ impl Client {
             }
         }
 
-        let transcoding = Self::get_transcoding_by_stream_type(track, stream_type).await?;
+        let transcoding = self.get_transcoding_by_stream_type(track, stream_type).await?;
         let stream_url = self.get_stream_url(track, stream_type).await?;
 
         match transcoding
@@ -106,13 +106,14 @@ impl Client {
         track: &Track,
         stream_type: Option<&StreamType>,
     ) -> Result<String, Box<dyn Error>> {
-        let transcoding = Self::get_transcoding_by_stream_type(track, stream_type).await?;
+        let transcoding = self.get_transcoding_by_stream_type(track, stream_type).await?;
         let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
         let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
         stream.url.ok_or("Missing resolved stream URL".into())
     }
 
     async fn get_transcoding_by_stream_type(
+        &self,
         track: &Track,
         stream_type: Option<&StreamType>,
     ) -> Result<Transcoding, Box<dyn Error>> {
@@ -127,36 +128,31 @@ impl Client {
             return Err("No available download options".into());
         }
 
-        let transcoding = match stream_type {
-            Some(StreamType::Hls) => transcodings.iter().find(|t| {
-                t.format
-                    .as_ref()
-                    .expect("Missing transcoding format")
-                    .protocol
-                    .as_ref()
-                    .expect("Missing transcoding protocol")
-                    == &StreamType::Hls
-            }),
-            Some(StreamType::Progressive) => transcodings.iter().find(|t| {
-                t.format
-                    .as_ref()
-                    .expect("Missing transcoding format")
-                    .protocol
-                    .as_ref()
-                    .expect("Missing transcoding protocol")
-                    == &StreamType::Progressive
-            }),
-            _ => transcodings.iter().find(|t| {
-                let protocol =t.format
-                    .as_ref()
-                    .expect("Missing transcoding format")
-                    .protocol
-                    .as_ref()
-                    .expect("Missing transcoding protocol");
-                protocol == &StreamType::Progressive || protocol == &StreamType::Hls
-            }),
+        let transcoding: Option<Transcoding> = {
+            for t in transcodings {
+                if let Some(kind) = stream_type {
+                    let protocol = match t.format.as_ref().and_then(|f| f.protocol.as_ref()) {
+                        Some(p) => p,
+                        None => continue,
+                    };
+                    if *protocol != *kind {
+                        continue;
+                    }
+                }
+        
+                let path = match t.url.as_ref() {
+                    Some(u) => u,
+                    None => continue,
+                };
+        
+                let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
+                if stream.url.is_some() {
+                    return Ok(t.clone());
+                }
+            }
+            None
         };
-        Ok(transcoding.expect("No available download options").clone())
+        Ok(transcoding.expect("No available download options"))
     }
 
     async fn download_progressive(

@@ -1,6 +1,6 @@
 [package]
 name = "soundcloud-rs"
-version = "0.7.0"
+version = "0.8.0"
 edition = "2024"
 license = "MIT"
 description = "A simple Rust client for the SoundCloud API"
