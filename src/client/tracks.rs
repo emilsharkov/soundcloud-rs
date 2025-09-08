@@ -147,13 +147,13 @@ impl Client {
                     == &StreamType::Progressive
             }),
             _ => transcodings.iter().find(|t| {
-                t.format
+                let protocol =t.format
                     .as_ref()
                     .expect("Missing transcoding format")
                     .protocol
                     .as_ref()
-                    .expect("Missing transcoding protocol")
-                    == &StreamType::Hls
+                    .expect("Missing transcoding protocol");
+                protocol == &StreamType::Progressive || protocol == &StreamType::Hls
             }),
         };
         Ok(transcoding.expect("No available download options").clone())
