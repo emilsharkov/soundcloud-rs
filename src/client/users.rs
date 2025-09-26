@@ -1,7 +1,7 @@
 use crate::client::client::Client;
 use crate::models::client::SoundcloudIdentifier;
 use crate::models::query::{Paging, UsersQuery};
-use crate::models::response::{Playlists, Tracks, User, Users};
+use crate::models::response::{Playlists, Reposts, Tracks, User, Users};
 use std::error::Error;
 
 impl Client {
@@ -56,6 +56,25 @@ impl Client {
     ) -> Result<Tracks, Box<dyn Error>> {
         let url = format!("users/{identifier}/tracks");
         let resp: Tracks = self.get(&url, pagination).await?;
+        Ok(resp)
+    }
+    pub async fn get_user_reposts_by_id(
+        &self,
+        id: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Reposts, Box<dyn Error>> {
+        let url = format!("stream/users/{}/reposts", id);
+        let resp: Reposts = self.get(&url, pagination).await?;
+        Ok(resp)
+    }
+
+    pub async fn get_user_reposts_by_urn(
+        &self,
+        urn: &str,
+        pagination: Option<&Paging>,
+    ) -> Result<Reposts, Box<dyn Error>> {
+        let url = format!("stream/users/{}/reposts", urn);
+        let resp: Reposts = self.get(&url, pagination).await?;
         Ok(resp)
     }
 }
