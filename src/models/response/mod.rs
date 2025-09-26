@@ -1,8 +1,10 @@
 mod playlists;
+mod reposts;
 mod search;
 mod tracks;
 mod users;
 pub use playlists::*;
+pub use reposts::*;
 pub use search::*;
 pub use tracks::*;
 pub use users::*;
