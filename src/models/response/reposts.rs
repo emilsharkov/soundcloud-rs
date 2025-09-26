@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    models::response::{PagingCollection, users::UserSummary},
+    models::response::PagingCollection,
     response::{Track, User},
 };
 
