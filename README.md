@@ -165,6 +165,7 @@ This provides better type safety and flexibility when working with SoundCloud re
 - **`get_user_followings(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
 - **`get_user_playlists(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
 - **`get_user_tracks(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
+- **`get_user_reposts(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Reposts, Box<dyn Error>>`**
 
 ## Notes on Downloads and FFmpeg
 - **HLS downloads** use `ffmpeg-sidecar`. On first HLS download, the crate will automatically download an FFmpeg binary for your platform. No manual installation is required.
