@@ -74,8 +74,10 @@ impl Client {
         urn: &str,
         pagination: Option<&Paging>,
     ) -> Result<Reposts, Box<dyn Error>> {
-        let url = format!("stream/users/{}/reposts", urn);
-        let resp: Reposts = self.get(&url, pagination).await?;
-        Ok(resp)
+        let id = urn
+            .split(':')
+            .last()
+            .expect("Could not extract ID from URN");
+        return self.get_user_reposts_by_id(id, pagination).await;
     }
 }
