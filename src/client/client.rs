@@ -45,7 +45,7 @@ impl Client {
         request = request.query(&[("client_id", client_id)]);
 
         let response = request.send().await.map_err(|e| {
-            println!("Error sending request: {}", e);
+            println!("Error sending request: {e}");
             Box::new(e) as Box<dyn Error>
         })?;
 
@@ -53,7 +53,7 @@ impl Client {
         // println!("{:?}", text);
         // let body = serde_json::from_str::<R>(&text)?;
         let body = response.json::<R>().await.map_err(|e| {
-            println!("Error parsing response: {}", e);
+            println!("Error parsing response: {e}");
             Box::new(e) as Box<dyn Error>
         })?;
 
@@ -83,7 +83,7 @@ impl Client {
         let response = reqwest::get(url).await?;
         let text = response.text().await?;
         let re = Regex::new(r#"client_id[:=]"?(\w{32})"#).expect("Failed to find client ID");
-        for cap in re.captures_iter(&text) {
+        if let Some(cap) = re.captures_iter(&text).next() {
             return Ok(Some(cap[1].to_string()));
         }
         Ok(None)

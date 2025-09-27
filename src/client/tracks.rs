@@ -18,7 +18,7 @@ impl Client {
     }
 
     pub async fn get_track(&self, identifier: &i64) -> Result<Track, Box<dyn Error>> {
-        let url = format!("tracks/{}", identifier);
+        let url = format!("tracks/{identifier}");
         let resp: Track = self.get(&url, None::<&()>).await?;
         Ok(resp)
     }
@@ -28,7 +28,7 @@ impl Client {
         identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Tracks, Box<dyn Error>> {
-        let url = format!("tracks/{}/related", identifier);
+        let url = format!("tracks/{identifier}/related");
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)
     }
@@ -51,8 +51,8 @@ impl Client {
         };
 
         let output_path = match destination {
-            Some(destination) => PathBuf::from(destination).join(format!("{}.mp3", title)),
-            None => PathBuf::from(format!("{}.mp3", title)),
+            Some(destination) => PathBuf::from(destination).join(format!("{title}.mp3")),
+            None => PathBuf::from(format!("{title}.mp3")),
         };
         if let Some(parent) = output_path.parent() {
             if !parent.exists() {

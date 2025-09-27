@@ -14,7 +14,7 @@ impl Client {
     }
 
     pub async fn get_playlist(&self, identifier: &i64) -> Result<Playlist, Box<dyn Error>> {
-        let url = format!("playlists/{}", identifier);
+        let url = format!("playlists/{identifier}");
         let resp: Playlist = self.get(&url, None::<&()>).await?;
         Ok(resp)
     }
@@ -24,7 +24,7 @@ impl Client {
         identifier: &str,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
-        let url = format!("playlists/{}/reposters", identifier);
+        let url = format!("playlists/{identifier}/reposters");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
@@ -56,12 +56,11 @@ impl Client {
         let tracks = playlist.tracks.as_ref().expect("Missing tracks");
         for track in tracks {
             let track_identifier = track.id.as_ref().expect("Missing track id");
-            match self
+            if let Err(e) = self
                 .download_track(track_identifier, None, Some(output_path_str), None)
                 .await
             {
-                Err(e) => println!("Error downloading track: {}", e),
-                _ => (),
+                println!("Error downloading track: {e}")
             }
         }
 

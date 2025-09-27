@@ -10,7 +10,7 @@ impl Client {
     }
 
     pub async fn get_user(&self, identifier: &i64) -> Result<User, Box<dyn Error>> {
-        let url = format!("users/{}", identifier);
+        let url = format!("users/{identifier}");
         let resp: User = self.get(&url, None::<&()>).await?;
         Ok(resp)
     }
@@ -20,7 +20,7 @@ impl Client {
         identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
-        let url = format!("users/{}/followers", identifier);
+        let url = format!("users/{identifier}/followers");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
@@ -30,7 +30,7 @@ impl Client {
         identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
-        let url = format!("users/{}/followings", identifier);
+        let url = format!("users/{identifier}/followings");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
@@ -40,7 +40,7 @@ impl Client {
         identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Playlists, Box<dyn Error>> {
-        let url = format!("users/{}/playlists", identifier);
+        let url = format!("users/{identifier}/playlists");
         let resp: Playlists = self.get(&url, pagination).await?;
         Ok(resp)
     }
@@ -50,7 +50,7 @@ impl Client {
         identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Tracks, Box<dyn Error>> {
-        let url = format!("users/{}/tracks", identifier);
+        let url = format!("users/{identifier}/tracks");
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)
     }
