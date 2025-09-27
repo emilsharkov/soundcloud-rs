@@ -8,6 +8,8 @@ Add the crate to your project:
 cargo add soundcloud-rs
 ```
 
+**Current version: 0.9.0**
+
 ## Quickstart
 
 ```rust
@@ -21,10 +23,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let query = TracksQuery { q: Some("electronic".into()), limit: Some(5), ..Default::default() };
     let tracks = client.search_tracks(Some(&query)).await?;
     let first_track = tracks.collection.first().expect("no tracks found").clone();
+    let first_track_id = first_track.id.expect("missing track id");
 
     // Download the track (HLS via ffmpeg, see notes below)
     client
-        .download_track(&first_track, Some(&StreamType::Hls), Some("./downloads"), None)
+        .download_track(&first_track_id, Some(&StreamType::Hls), Some("./downloads"), None)
         .await?;
 
     Ok(())
@@ -47,12 +50,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let first_track = tracks.collection.first().expect("no tracks found").clone();
 
     // Get a specific track
-    let track_id = first_track.id.as_ref().expect("missing track id").to_string();
-    let track = client.get_track_by_id(&track_id).await?;
+    let track_id = first_track.id.expect("missing track id");
+    let track = client.get_track(&track_id).await?;
 
     // Download the track (Progressive example)
     client
-        .download_track(&track, Some(&StreamType::Progressive), Some("./downloads"), None)
+        .download_track(&track_id, Some(&StreamType::Progressive), Some("./downloads"), None)
         .await?;
 
     Ok(())
@@ -73,11 +76,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let first_playlist = playlists.collection.first().expect("no playlists found").clone();
 
     // Get a specific playlist
-    let playlist_id = first_playlist.id.as_ref().expect("missing playlist id").to_string();
-    let playlist = client.get_playlist_by_id(&playlist_id).await?;
+    let playlist_id = first_playlist.id.expect("missing playlist id");
+    let playlist = client.get_playlist(&playlist_id).await?;
 
     // Download the playlist
-    client.download_playlist(&playlist, Some("./downloads"), None).await?;
+    client.download_playlist(&playlist_id, Some("./downloads"), None).await?;
 
     Ok(())
 }
@@ -92,20 +95,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let client = Client::new().await?;
 
     // Get a specific user
-    let user_id = "123456789";
-    let user = client.get_user_by_id(user_id).await?;
+    let user_id = 123456789;
+    let user = client.get_user(&user_id).await?;
     println!("User: {}", user.username.unwrap_or_default());
 
     // Get user's followers
-    let followers = client.get_user_followers_by_id(user_id, None::<&Paging>).await?;
+    let followers = client.get_user_followers(&user_id, None::<&Paging>).await?;
     println!("User has {} followers", followers.collection.len());
 
     // Get user's tracks
-    let user_tracks = client.get_user_tracks_by_id(user_id, None::<&Paging>).await?;
+    let user_tracks = client.get_user_tracks(&user_id, None::<&Paging>).await?;
     println!("User has {} tracks", user_tracks.collection.len());
 
     // Get user's playlists
-    let user_playlists = client.get_user_playlists_by_id(user_id, None::<&Paging>).await?;
+    let user_playlists = client.get_user_playlists(&user_id, None::<&Paging>).await?;
     println!("User has {} playlists", user_playlists.collection.len());
 
     Ok(())
@@ -125,37 +128,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Tracks
 - **`search_tracks(query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>>`**
-- **`get_track_by_id(id: &str) -> Result<Track, Box<dyn Error>>`**
-- **`get_track_by_urn(urn: &str) -> Result<Track, Box<dyn Error>>`**
-- **`get_track_related_by_id(id: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
-- **`get_track_related_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
-- **`download_track(track: &Track, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>>`**
-- **`get_stream_url(track: &Track, stream_type: Option<&StreamType>) -> Result<String, Box<dyn Error>>`**
-- **`get_track_waveform(track: &Track) -> Result<Waveform, Box<dyn Error>>`**
+- **`get_track(id: &i64) -> Result<Track, Box<dyn Error>>`**
+- **`get_track_related(id: &i64, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
+- **`download_track(track_id: &i64, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>>`**
+- **`get_stream_url(track_id: &i64, stream_type: Option<&StreamType>) -> Result<String, Box<dyn Error>>`**
+- **`get_track_waveform(track_id: &i64) -> Result<Waveform, Box<dyn Error>>`**
 
 ### Playlists
 - **`search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`**
-- **`get_playlist_by_id(id: &str) -> Result<Playlist, Box<dyn Error>>`**
-- **`get_playlist_by_urn(urn: &str) -> Result<Playlist, Box<dyn Error>>`**
-- **`get_playlist_reposters_by_id(id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_playlist_reposters_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`download_playlist(playlist: &Playlist, destination: Option<&str>, playlist_name: Option<&str>) -> Result<(), Box<dyn Error>>`**
+- **`get_playlist(id: &i64) -> Result<Playlist, Box<dyn Error>>`**
+- **`get_playlist_reposters(id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
+- **`download_playlist(playlist_id: &i64, destination: Option<&str>, playlist_name: Option<&str>) -> Result<(), Box<dyn Error>>`**
 
 ### Albums
 - **`search_albums(query: Option<&AlbumQuery>) -> Result<Playlists, Box<dyn Error>>`**
 
 ### Users
 - **`search_users(query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_by_id(id: &str) -> Result<User, Box<dyn Error>>`**
-- **`get_user_by_urn(urn: &str) -> Result<User, Box<dyn Error>>`**
-- **`get_user_followers_by_id(id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_followers_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_followings_by_id(id: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_followings_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_playlists_by_id(id: &str, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
-- **`get_user_playlists_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
-- **`get_user_tracks_by_id(id: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
-- **`get_user_tracks_by_urn(urn: &str, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
+- **`get_user(id: &i64) -> Result<User, Box<dyn Error>>`**
+- **`get_user_followers(id: &i64, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
+- **`get_user_followings(id: &i64, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
+- **`get_user_playlists(id: &i64, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
+- **`get_user_tracks(id: &i64, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
 
 ## Notes on Downloads and FFmpeg
 - **HLS downloads** use `ffmpeg-sidecar`. On first HLS download, the crate will automatically download an FFmpeg binary for your platform. No manual installation is required.

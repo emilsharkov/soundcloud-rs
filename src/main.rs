@@ -13,8 +13,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     };
     let tracks = client.search_tracks(Some(&query)).await?;
     let first_track = tracks.collection.first().expect("No tracks found");
-    let waveform = client.get_track_waveform(&first_track).await?;
-    println!("{:?}", waveform);
-    // client.download_track(&first_track, Some(&StreamType::Progressive), Some("./downloads"), None).await?;
+    let first_track_id = first_track.id.expect("No track id found");
+    client
+        .download_track(
+            &first_track_id,
+            Some(&StreamType::Progressive),
+            Some("./downloads"),
+            None,
+        )
+        .await?;
     Ok(())
 }

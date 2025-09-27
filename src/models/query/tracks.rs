@@ -11,14 +11,14 @@ pub struct TracksQuery {
     pub duration: Option<String>,
     pub created_at: Option<String>,
     pub access: Option<String>,
-    pub limit: Option<u32>,
-    pub offset: Option<u32>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
     pub linked_partitioning: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct Paging {
-    pub limit: Option<u32>,
-    pub offset: Option<u32>,
+    pub limit: Option<i32>,
+    pub offset: Option<i32>,
     pub linked_partitioning: Option<bool>,
 }

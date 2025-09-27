@@ -13,44 +13,30 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_playlist_by_id(&self, id: &str) -> Result<Playlist, Box<dyn Error>> {
-        let url = format!("playlists/{}", id);
+    pub async fn get_playlist(&self, identifier: &i64) -> Result<Playlist, Box<dyn Error>> {
+        let url = format!("playlists/{}", identifier);
         let resp: Playlist = self.get(&url, None::<&()>).await?;
         Ok(resp)
     }
 
-    pub async fn get_playlist_by_urn(&self, urn: &str) -> Result<Playlist, Box<dyn Error>> {
-        let url = format!("playlists/{}", urn);
-        let resp: Playlist = self.get(&url, None::<&()>).await?;
-        Ok(resp)
-    }
-
-    pub async fn get_playlist_reposters_by_id(
+    pub async fn get_playlist_reposters(
         &self,
-        id: &str,
+        identifier: &str,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
-        let url = format!("playlists/{}/reposters", id);
-        let resp: Users = self.get(&url, pagination).await?;
-        Ok(resp)
-    }
-
-    pub async fn get_playlist_reposters_by_urn(
-        &self,
-        urn: &str,
-        pagination: Option<&Paging>,
-    ) -> Result<Users, Box<dyn Error>> {
-        let url = format!("playlists/{}/reposters", urn);
+        let url = format!("playlists/{}/reposters", identifier);
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
     pub async fn download_playlist(
         &self,
-        playlist: &Playlist,
+        playlist_identifier: &i64,
         destination: Option<&str>,
         playlist_name: Option<&str>,
     ) -> Result<(), Box<dyn Error>> {
+        let playlist = self.get_playlist(playlist_identifier).await?;
+
         let playlist_title = match playlist_name {
             Some(playlist_name) => playlist_name,
             None => playlist.title.as_ref().expect("Missing playlist title"),
@@ -69,8 +55,9 @@ impl Client {
             .expect("Failed to convert output path to string");
         let tracks = playlist.tracks.as_ref().expect("Missing tracks");
         for track in tracks {
+            let track_identifier = track.id.as_ref().expect("Missing track id");
             match self
-                .download_track(track, None, Some(output_path_str), None)
+                .download_track(track_identifier, None, Some(output_path_str), None)
                 .await
             {
                 Err(e) => println!("Error downloading track: {}", e),

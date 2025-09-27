@@ -8,28 +8,28 @@ pub type Users = PagingCollection<User>;
 pub struct User {
     pub avatar_url: Option<String>,
     pub city: Option<String>,
-    pub comments_count: Option<u32>,
+    pub comments_count: Option<i32>,
     pub country_code: Option<String>,
     pub created_at: Option<String>,
     pub creator_subscriptions: Option<Vec<CreatorSubscriptionWrapper>>,
     pub creator_subscription: Option<CreatorSubscriptionWrapper>,
     pub description: Option<String>,
-    pub followers_count: Option<u32>,
-    pub followings_count: Option<u32>,
+    pub followers_count: Option<i32>,
+    pub followings_count: Option<i32>,
     pub first_name: Option<String>,
     pub full_name: Option<String>,
-    pub groups_count: Option<u32>,
-    pub id: Option<u64>,
+    pub groups_count: Option<i32>,
+    pub id: Option<i64>,
     pub kind: Option<String>,
     pub last_modified: Option<String>,
     pub last_name: Option<String>,
-    pub likes_count: Option<u32>,
-    pub playlist_likes_count: Option<u32>,
+    pub likes_count: Option<i32>,
+    pub playlist_likes_count: Option<i32>,
     pub permalink: Option<String>,
     pub permalink_url: Option<String>,
-    pub playlist_count: Option<u32>,
-    pub reposts_count: Option<u32>,
-    pub track_count: Option<u32>,
+    pub playlist_count: Option<i32>,
+    pub reposts_count: Option<i32>,
+    pub track_count: Option<i32>,
     pub uri: Option<String>,
     pub urn: Option<String>,
     pub username: Option<String>,
@@ -61,7 +61,7 @@ pub struct Visuals {
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct VisualEntry {
     pub urn: Option<String>,
-    pub entry_time: Option<u32>,
+    pub entry_time: Option<i32>,
     pub visual_url: Option<String>,
 }
 
@@ -75,14 +75,14 @@ pub struct Badges {
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct DateOfBirth {
-    pub month: Option<u8>,
-    pub year: Option<u16>,
-    pub day: Option<u8>,
+    pub month: Option<i8>,
+    pub year: Option<i16>,
+    pub day: Option<i8>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default, Clone)]
 pub struct UserSummary {
-    pub id: Option<u64>,
+    pub id: Option<i64>,
     pub username: Option<String>,
     pub permalink_url: Option<String>,
     pub avatar_url: Option<String>,

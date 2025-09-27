@@ -17,45 +17,31 @@ impl Client {
         Ok(tracks)
     }
 
-    pub async fn get_track_by_id(&self, id: &str) -> Result<Track, Box<dyn Error>> {
-        let url = format!("tracks/{}", id);
+    pub async fn get_track(&self, identifier: &i64) -> Result<Track, Box<dyn Error>> {
+        let url = format!("tracks/{}", identifier);
         let resp: Track = self.get(&url, None::<&()>).await?;
         Ok(resp)
     }
 
-    pub async fn get_track_by_urn(&self, urn: &str) -> Result<Track, Box<dyn Error>> {
-        let url = format!("tracks/{}", urn);
-        let resp: Track = self.get(&url, None::<&()>).await?;
-        Ok(resp)
-    }
-
-    pub async fn get_track_related_by_id(
+    pub async fn get_track_related(
         &self,
-        id: &str,
+        identifier: &i64,
         pagination: Option<&Paging>,
     ) -> Result<Tracks, Box<dyn Error>> {
-        let url = format!("tracks/{}/related", id);
-        let resp: Tracks = self.get(&url, pagination).await?;
-        Ok(resp)
-    }
-
-    pub async fn get_track_related_by_urn(
-        &self,
-        urn: &str,
-        pagination: Option<&Paging>,
-    ) -> Result<Tracks, Box<dyn Error>> {
-        let url = format!("tracks/{}/related", urn);
+        let url = format!("tracks/{}/related", identifier);
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)
     }
 
     pub async fn download_track(
         &self,
-        track: &Track,
+        track_identifier: &i64,
         stream_type: Option<&StreamType>,
         destination: Option<&str>,
         filename: Option<&str>,
     ) -> Result<(), Box<dyn Error>> {
+        let track = self.get_track(track_identifier).await?;
+
         if track.title.is_none() {
             return Err("Track title is missing".into());
         }
@@ -74,8 +60,10 @@ impl Client {
             }
         }
 
-        let transcoding = self.get_transcoding_by_stream_type(track, stream_type).await?;
-        let stream_url = self.get_stream_url(track, stream_type).await?;
+        let transcoding = self
+            .get_transcoding_by_stream_type(&track, stream_type)
+            .await?;
+        let stream_url = self.get_stream_url(track_identifier, stream_type).await?;
 
         match transcoding
             .format
@@ -94,7 +82,11 @@ impl Client {
         Ok(())
     }
 
-    pub async fn get_track_waveform(&self, track: &Track) -> Result<Waveform, Box<dyn Error>> {
+    pub async fn get_track_waveform(
+        &self,
+        track_identifier: &i64,
+    ) -> Result<Waveform, Box<dyn Error>> {
+        let track = self.get_track(track_identifier).await?;
         let waveform_url = track.waveform_url.as_ref().expect("Missing waveform URL");
         let response = reqwest::get(waveform_url).await?;
         let waveform: Waveform = response.json::<Waveform>().await?;
@@ -103,10 +95,13 @@ impl Client {
 
     pub async fn get_stream_url(
         &self,
-        track: &Track,
+        track_identifier: &i64,
         stream_type: Option<&StreamType>,
     ) -> Result<String, Box<dyn Error>> {
-        let transcoding = self.get_transcoding_by_stream_type(track, stream_type).await?;
+        let track = self.get_track(track_identifier).await?;
+        let transcoding = self
+            .get_transcoding_by_stream_type(&track, stream_type)
+            .await?;
         let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
         let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
         stream.url.ok_or("Missing resolved stream URL".into())
@@ -139,13 +134,14 @@ impl Client {
                         continue;
                     }
                 }
-        
+
                 let path = match t.url.as_ref() {
                     Some(u) => u,
                     None => continue,
                 };
-        
-                let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
+
+                let stream: Stream =
+                    Self::get_json(path, None, None::<&()>, &self.client_id).await?;
                 if stream.url.is_some() {
                     return Ok(t.clone());
                 }
