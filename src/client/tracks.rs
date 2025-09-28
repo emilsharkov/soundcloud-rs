@@ -42,9 +42,15 @@ impl Client {
     ) -> Result<(), Box<dyn Error>> {
         let track = self.get_track(track_identifier).await?;
 
+        let stream = match stream_type {
+            Some(stream_type) => stream_type,
+            None => &StreamType::Progressive,
+        };
+
         if track.title.is_none() {
             return Err("Track title is missing".into());
         }
+        
         let title = match filename {
             Some(filename) => filename,
             None => track.title.as_ref().expect("Missing track title"),
@@ -61,9 +67,9 @@ impl Client {
         }
 
         let transcoding = self
-            .get_transcoding_by_stream_type(&track, stream_type)
+            .get_transcoding_by_stream_type(&track, stream)
             .await?;
-        let stream_url = self.get_stream_url(track_identifier, stream_type).await?;
+        let stream_url = self.get_stream_url(track_identifier, Some(stream)).await?;
 
         match transcoding
             .format
@@ -99,8 +105,12 @@ impl Client {
         stream_type: Option<&StreamType>,
     ) -> Result<String, Box<dyn Error>> {
         let track = self.get_track(track_identifier).await?;
+        let stream = match stream_type {
+            Some(stream_type) => stream_type,
+            None => &StreamType::Progressive,
+        };
         let transcoding = self
-            .get_transcoding_by_stream_type(&track, stream_type)
+            .get_transcoding_by_stream_type(&track, stream)
             .await?;
         let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
         let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
@@ -110,7 +120,7 @@ impl Client {
     async fn get_transcoding_by_stream_type(
         &self,
         track: &Track,
-        stream_type: Option<&StreamType>,
+        stream_type: &StreamType,
     ) -> Result<Transcoding, Box<dyn Error>> {
         let transcodings = track
             .media
@@ -125,14 +135,12 @@ impl Client {
 
         let transcoding: Option<Transcoding> = {
             for t in transcodings {
-                if let Some(kind) = stream_type {
-                    let protocol = match t.format.as_ref().and_then(|f| f.protocol.as_ref()) {
-                        Some(p) => p,
-                        None => continue,
-                    };
-                    if *protocol != *kind {
-                        continue;
-                    }
+                let protocol = match t.format.as_ref().and_then(|f| f.protocol.as_ref()) {
+                    Some(p) => p,
+                    None => continue,
+                };
+                if *protocol != *stream_type {
+                    continue;
                 }
 
                 let path = match t.url.as_ref() {

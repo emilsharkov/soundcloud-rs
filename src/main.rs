@@ -6,7 +6,7 @@ use soundcloud_rs::{Client, query::TracksQuery, response::StreamType};
 async fn main() -> Result<(), Box<dyn Error>> {
     let client = Client::new().await?;
     let query = TracksQuery {
-        q: Some("fluxxwave".to_string()),
+        q: Some("no era amor".to_string()),
         limit: Some(5),
         ..Default::default()
     };
@@ -16,7 +16,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     client
         .download_track(
             &first_track_id,
-            Some(&StreamType::Progressive),
+            None,
             Some("./downloads"),
             None,
         )
