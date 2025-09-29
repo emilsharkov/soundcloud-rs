@@ -11,8 +11,8 @@ pub enum SoundcloudIdentifier {
 impl fmt::Display for SoundcloudIdentifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SoundcloudIdentifier::Id(id) => write!(f, "{}", id),
-            SoundcloudIdentifier::Urn(urn) => write!(f, "{}", urn),
+            SoundcloudIdentifier::Id(id) => write!(f, "{id}"),
+            SoundcloudIdentifier::Urn(urn) => write!(f, "{urn}"),
         }
     }
 }
