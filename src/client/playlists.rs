@@ -1,4 +1,5 @@
 use crate::client::client::Client;
+use crate::models::client::SoundcloudIdentifier;
 use crate::models::query::{Paging, PlaylistsQuery};
 use crate::models::response::{Playlist, Playlists, Users};
 use std::error::Error;
@@ -13,7 +14,10 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_playlist(&self, identifier: &i64) -> Result<Playlist, Box<dyn Error>> {
+    pub async fn get_playlist(
+        &self,
+        identifier: &SoundcloudIdentifier,
+    ) -> Result<Playlist, Box<dyn Error>> {
         let url = format!("playlists/{identifier}");
         let resp: Playlist = self.get(&url, None::<&()>).await?;
         Ok(resp)
@@ -21,7 +25,7 @@ impl Client {
 
     pub async fn get_playlist_reposters(
         &self,
-        identifier: &str,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
         let url = format!("playlists/{identifier}/reposters");
@@ -31,11 +35,11 @@ impl Client {
 
     pub async fn download_playlist(
         &self,
-        playlist_identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         destination: Option<&str>,
         playlist_name: Option<&str>,
     ) -> Result<(), Box<dyn Error>> {
-        let playlist = self.get_playlist(playlist_identifier).await?;
+        let playlist = self.get_playlist(identifier).await?;
 
         let playlist_title = match playlist_name {
             Some(playlist_name) => playlist_name,
@@ -55,9 +59,14 @@ impl Client {
             .expect("Failed to convert output path to string");
         let tracks = playlist.tracks.as_ref().expect("Missing tracks");
         for track in tracks {
-            let track_identifier = track.id.as_ref().expect("Missing track id");
+            let identifier = track.id.as_ref().expect("Missing track id");
             if let Err(e) = self
-                .download_track(track_identifier, None, Some(output_path_str), None)
+                .download_track(
+                    &SoundcloudIdentifier::Id(*identifier),
+                    None,
+                    Some(output_path_str),
+                    None,
+                )
                 .await
             {
                 println!("Error downloading track: {e}")

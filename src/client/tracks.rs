@@ -4,6 +4,7 @@ use std::error::Error;
 use std::path::PathBuf;
 
 use crate::client::client::Client;
+use crate::models::client::SoundcloudIdentifier;
 use crate::models::query::{Paging, TracksQuery};
 use crate::models::response::{Track, Tracks};
 use crate::response::{Stream, StreamType, Transcoding, Waveform};
@@ -17,7 +18,10 @@ impl Client {
         Ok(tracks)
     }
 
-    pub async fn get_track(&self, identifier: &i64) -> Result<Track, Box<dyn Error>> {
+    pub async fn get_track(
+        &self,
+        identifier: &SoundcloudIdentifier,
+    ) -> Result<Track, Box<dyn Error>> {
         let url = format!("tracks/{identifier}");
         let resp: Track = self.get(&url, None::<&()>).await?;
         Ok(resp)
@@ -25,7 +29,7 @@ impl Client {
 
     pub async fn get_track_related(
         &self,
-        identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Tracks, Box<dyn Error>> {
         let url = format!("tracks/{identifier}/related");
@@ -35,12 +39,12 @@ impl Client {
 
     pub async fn download_track(
         &self,
-        track_identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         stream_type: Option<&StreamType>,
         destination: Option<&str>,
         filename: Option<&str>,
     ) -> Result<(), Box<dyn Error>> {
-        let track = self.get_track(track_identifier).await?;
+        let track = self.get_track(identifier).await?;
 
         let stream = match stream_type {
             Some(stream_type) => stream_type,
@@ -50,7 +54,7 @@ impl Client {
         if track.title.is_none() {
             return Err("Track title is missing".into());
         }
-        
+
         let title = match filename {
             Some(filename) => filename,
             None => track.title.as_ref().expect("Missing track title"),
@@ -66,10 +70,8 @@ impl Client {
             }
         }
 
-        let transcoding = self
-            .get_transcoding_by_stream_type(&track, stream)
-            .await?;
-        let stream_url = self.get_stream_url(track_identifier, Some(stream)).await?;
+        let transcoding = self.get_transcoding_by_stream_type(&track, stream).await?;
+        let stream_url = self.get_stream_url(identifier, Some(stream)).await?;
 
         match transcoding
             .format
@@ -90,9 +92,9 @@ impl Client {
 
     pub async fn get_track_waveform(
         &self,
-        track_identifier: &i64,
+        identifier: &SoundcloudIdentifier,
     ) -> Result<Waveform, Box<dyn Error>> {
-        let track = self.get_track(track_identifier).await?;
+        let track = self.get_track(identifier).await?;
         let waveform_url = track.waveform_url.as_ref().expect("Missing waveform URL");
         let response = reqwest::get(waveform_url).await?;
         let waveform: Waveform = response.json::<Waveform>().await?;
@@ -101,17 +103,15 @@ impl Client {
 
     pub async fn get_stream_url(
         &self,
-        track_identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         stream_type: Option<&StreamType>,
     ) -> Result<String, Box<dyn Error>> {
-        let track = self.get_track(track_identifier).await?;
+        let track = self.get_track(identifier).await?;
         let stream = match stream_type {
             Some(stream_type) => stream_type,
             None => &StreamType::Progressive,
         };
-        let transcoding = self
-            .get_transcoding_by_stream_type(&track, stream)
-            .await?;
+        let transcoding = self.get_transcoding_by_stream_type(&track, stream).await?;
         let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
         let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
         stream.url.ok_or("Missing resolved stream URL".into())

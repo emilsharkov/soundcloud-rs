@@ -1,4 +1,5 @@
 use crate::client::client::Client;
+use crate::models::client::SoundcloudIdentifier;
 use crate::models::query::{Paging, UsersQuery};
 use crate::models::response::{Playlists, Tracks, User, Users};
 use std::error::Error;
@@ -9,7 +10,10 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_user(&self, identifier: &i64) -> Result<User, Box<dyn Error>> {
+    pub async fn get_user(
+        &self,
+        identifier: &SoundcloudIdentifier,
+    ) -> Result<User, Box<dyn Error>> {
         let url = format!("users/{identifier}");
         let resp: User = self.get(&url, None::<&()>).await?;
         Ok(resp)
@@ -17,7 +21,7 @@ impl Client {
 
     pub async fn get_user_followers(
         &self,
-        identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{identifier}/followers");
@@ -27,7 +31,7 @@ impl Client {
 
     pub async fn get_user_followings(
         &self,
-        identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Users, Box<dyn Error>> {
         let url = format!("users/{identifier}/followings");
@@ -37,7 +41,7 @@ impl Client {
 
     pub async fn get_user_playlists(
         &self,
-        identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Playlists, Box<dyn Error>> {
         let url = format!("users/{identifier}/playlists");
@@ -47,7 +51,7 @@ impl Client {
 
     pub async fn get_user_tracks(
         &self,
-        identifier: &i64,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Tracks, Box<dyn Error>> {
         let url = format!("users/{identifier}/tracks");

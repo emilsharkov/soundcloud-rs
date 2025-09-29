@@ -11,14 +11,13 @@ pub struct Client {
 
 impl Client {
     pub async fn new() -> Result<Self, Box<dyn Error>> {
-        let script_urls = Self::get_script_urls().await?;
-        for url in script_urls {
-            let client_id = Self::find_client_id(url).await?;
-            if let Some(client_id) = client_id {
-                return Ok(Self { client_id });
-            }
-        }
-        Err("Client ID not found".into())
+        let client_id = Self::get_client_id().await?;
+        Ok(Self { client_id })
+    }
+
+    pub async fn refresh_client_id(&mut self) -> Result<(), Box<dyn Error>> {
+        self.client_id = Self::get_client_id().await?;
+        Ok(())
     }
 
     pub async fn get_json<R: DeserializeOwned, Q: Serialize>(
@@ -87,5 +86,16 @@ impl Client {
             return Ok(Some(cap[1].to_string()));
         }
         Ok(None)
+    }
+
+    async fn get_client_id() -> Result<String, Box<dyn Error>> {
+        let script_urls = Self::get_script_urls().await?;
+        for url in script_urls {
+            let client_id = Self::find_client_id(url).await?;
+            if let Some(client_id) = client_id {
+                return Ok(client_id);
+            }
+        }
+        Err("Client ID not found".into())
     }
 }

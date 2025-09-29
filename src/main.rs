@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use soundcloud_rs::{Client, query::TracksQuery, response::StreamType};
+use soundcloud_rs::{Client, SoundcloudIdentifier, query::TracksQuery};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -15,7 +15,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let first_track_id = first_track.id.expect("No track id found");
     client
         .download_track(
-            &first_track_id,
+            &SoundcloudIdentifier::Id(first_track_id),
             None,
             Some("./downloads"),
             None,
