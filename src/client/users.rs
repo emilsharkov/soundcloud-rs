@@ -59,25 +59,21 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_user_reposts_by_id(
+    pub async fn get_user_reposts(
         &self,
-        id: &str,
+        identifier: &SoundcloudIdentifier,
         pagination: Option<&Paging>,
     ) -> Result<Reposts, Box<dyn Error>> {
+        let id = match identifier {
+            SoundcloudIdentifier::Id(id) => id.to_string(),
+            SoundcloudIdentifier::Urn(urn) => urn
+                .split(':')
+                .last()
+                .expect("Could not extract ID from URN")
+                .to_owned(),
+        };
         let url = format!("stream/users/{}/reposts", id);
         let resp: Reposts = self.get(&url, pagination).await?;
         Ok(resp)
-    }
-
-    pub async fn get_user_reposts_by_urn(
-        &self,
-        urn: &str,
-        pagination: Option<&Paging>,
-    ) -> Result<Reposts, Box<dyn Error>> {
-        let id = urn
-            .split(':')
-            .last()
-            .expect("Could not extract ID from URN");
-        return self.get_user_reposts_by_id(id, pagination).await;
     }
 }
