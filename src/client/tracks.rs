@@ -1,7 +1,7 @@
 use ffmpeg_sidecar::command::FfmpegCommand;
 use ffmpeg_sidecar::download;
 use std::error::Error;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::client::client::Client;
 use crate::models::client::SoundcloudIdentifier;
@@ -162,7 +162,7 @@ impl Client {
     async fn download_progressive(
         &self,
         stream_url: &str,
-        output_path: &PathBuf,
+        output_path: &Path,
     ) -> Result<(), Box<dyn Error>> {
         let response = reqwest::get(stream_url).await?;
         let bytes = response.bytes().await?;
@@ -173,7 +173,7 @@ impl Client {
     async fn download_hls(
         &self,
         stream_url: &str,
-        output_path: &PathBuf,
+        output_path: &Path,
     ) -> Result<(), Box<dyn Error>> {
         download::auto_download()?;
         let status = FfmpegCommand::new()
