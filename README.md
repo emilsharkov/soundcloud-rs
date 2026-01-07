@@ -97,10 +97,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get a specific playlist
     let playlist_id = first_playlist.id.expect("missing playlist id");
-    let playlist = client.get_playlist(&SoundcloudIdentifier::Id(playlist_id)).await?;
+    let playlist = client.get_playlist(&SoundcloudIdentifier::Id(playlist_id as i64)).await?;
 
     // Download the playlist
-    client.download_playlist(&SoundcloudIdentifier::Id(playlist_id), Some("./downloads"), None).await?;
+    client.download_playlist(&SoundcloudIdentifier::Id(playlist_id as i64), Some("./downloads"), None).await?;
 
     Ok(())
 }
