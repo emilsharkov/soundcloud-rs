@@ -113,7 +113,8 @@ impl Client {
         };
         let transcoding = self.get_transcoding_by_stream_type(&track, stream).await?;
         let path = transcoding.url.as_ref().ok_or("Missing transcoding URL")?;
-        let stream: Stream = Self::get_json(path, None, None::<&()>, &self.client_id).await?;
+        let client_id = self.get_client_id_value().await;
+        let (stream, _): (Stream, _) = Self::get_json(path, None, None::<&()>, &client_id).await?;
         stream.url.ok_or("Missing resolved stream URL".into())
     }
 
@@ -148,8 +149,9 @@ impl Client {
                     None => continue,
                 };
 
-                let stream: Stream =
-                    Self::get_json(path, None, None::<&()>, &self.client_id).await?;
+                let client_id = self.get_client_id_value().await;
+                let (stream, _): (Stream, _) =
+                    Self::get_json(path, None, None::<&()>, &client_id).await?;
                 if stream.url.is_some() {
                     return Ok(t.clone());
                 }

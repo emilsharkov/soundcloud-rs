@@ -32,6 +32,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+### Advanced: Using ClientBuilder for Custom Retry Configuration
+
+```rust
+use soundcloud_rs::{ClientBuilder, SoundcloudIdentifier, query::TracksQuery};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Create a client with custom retry configuration
+    let client = ClientBuilder::new()
+        .with_max_retries(3)           // Retry up to 3 times on 401 errors
+        .with_retry_on_401(true)        // Enable automatic retry on 401 Unauthorized
+        .build()
+        .await?;
+
+    // Use the client as normal
+    let query = TracksQuery { q: Some("electronic".into()), limit: Some(5), ..Default::default() };
+    let tracks = client.search_tracks(Some(&query)).await?;
+    
+    Ok(())
+}
+```
+
 ## More Examples
 
 ### Search, get, and download a track
@@ -131,11 +153,25 @@ This provides better type safety and flexibility when working with SoundCloud re
 
 ## API Overview
 
-### Core
-- **`Client::new() -> Result<Self, Box<dyn Error>>`**: Initialize the client by discovering a `client_id`.
-- **`refresh_client_id(&mut self) -> Result<(), Box<dyn Error>>`**: Refresh the client ID by re-discovering it from SoundCloud.
-- **`get<Q: Serialize, R: DeserializeOwned>(&self, path: &str, query: Option<&Q>) -> Result<R, Box<dyn Error>>`**: Perform a GET against the SoundCloud API.
-- **`get_json<R: DeserializeOwned, Q: Serialize>(base_url: &str, path: Option<&str>, query: Option<&Q>, client_id: &str) -> Result<R, Box<dyn Error>>`**: Static helper to GET JSON from any base URL.
+### Core Client Methods
+
+#### Creating a Client
+- **`Client::new() -> Result<Self, Box<dyn Error>>`**: Initialize the client with default retry configuration by discovering a `client_id`.
+- **`Client::with_retry_config(retry_config: RetryConfig) -> Result<Self, Box<dyn Error>>`**: Initialize the client with custom retry configuration.
+
+#### ClientBuilder (Recommended for Custom Configuration)
+- **`ClientBuilder::new() -> Self`**: Create a new builder with default retry configuration.
+- **`with_max_retries(max_retries: u32) -> Self`**: Set the maximum number of retry attempts (default: 1).
+- **`with_retry_on_401(retry_on_401: bool) -> Self`**: Enable or disable retrying on 401 Unauthorized responses (default: true).
+- **`build() -> Result<Client, Box<dyn Error>>`**: Build the client with the configured settings.
+
+#### Client Management
+- **`refresh_client_id(&self) -> Result<(), Box<dyn Error>>`**: Refresh the client ID by re-discovering it from SoundCloud. Useful if you encounter 401 errors.
+- **`get_client_id_value(&self) -> String`**: Get the current client ID value.
+
+#### Low-Level API Methods
+- **`get<Q: Serialize, R: DeserializeOwned>(&self, path: &str, query: Option<&Q>) -> Result<R, Box<dyn Error>>`**: Perform a GET request against the SoundCloud API.
+- **`get_json<R: DeserializeOwned, Q: Serialize>(base_url: &str, path: Option<&str>, query: Option<&Q>, client_id: &str) -> Result<(R, u16), Box<dyn Error>>`**: Static helper to GET JSON from any base URL. Returns both the response body and HTTP status code.
 
 ### Search
 - **`get_search_results(query: Option<&SearchResultsQuery>) -> Result<SearchResultsResponse, Box<dyn Error>>`**
@@ -166,6 +202,26 @@ This provides better type safety and flexibility when working with SoundCloud re
 - **`get_user_playlists(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
 - **`get_user_tracks(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
 - **`get_user_reposts(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Reposts, Box<dyn Error>>`**
+
+## Retry Configuration
+
+The client supports automatic retry on 401 Unauthorized errors, which can occur when SoundCloud rotates their client IDs. By default, the client will retry once with a refreshed client ID. You can customize this behavior:
+
+```rust
+use soundcloud_rs::ClientBuilder;
+
+let client = ClientBuilder::new()
+    .with_max_retries(3)        // Retry up to 3 times
+    .with_retry_on_401(true)     // Enable retry on 401 (default: true)
+    .build()
+    .await?;
+```
+
+**RetryConfig defaults:**
+- `max_retries`: 1
+- `retry_on_401`: true
+
+When a 401 error occurs, the client will automatically refresh the client ID and retry the request up to `max_retries` times.
 
 ## Notes on Downloads and FFmpeg
 - **HLS downloads** use `ffmpeg-sidecar`. On first HLS download, the crate will automatically download an FFmpeg binary for your platform. No manual installation is required.
