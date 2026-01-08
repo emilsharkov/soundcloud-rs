@@ -1,9 +1,9 @@
 use std::error::Error;
 
-use soundcloud_rs::{ClientBuilder, SoundcloudIdentifier, query::TracksQuery};
+use soundcloud_rs::{ClientBuilder, Identifier, query::TracksQuery};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     let client = ClientBuilder::new()
         .with_retry_on_401(true)
         .with_max_retries(3)
@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let first_track_id = first_track.id.expect("No track id found");
     client
         .download_track(
-            &SoundcloudIdentifier::Id(first_track_id),
+            &Identifier::Id(first_track_id),
             None,
             Some("./downloads"),
             None,

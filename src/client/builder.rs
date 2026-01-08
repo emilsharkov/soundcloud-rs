@@ -1,6 +1,6 @@
-use std::error::Error;
-
-use crate::client::client::{Client, RetryConfig};
+use crate::models::client::Client;
+use crate::models::config::RetryConfig;
+use crate::models::error::Error;
 
 #[derive(Debug)]
 pub struct ClientBuilder {
@@ -28,7 +28,7 @@ impl ClientBuilder {
     }
 
     /// Build the Client with the configured settings.
-    pub async fn build(self) -> Result<Client, Box<dyn Error>> {
+    pub async fn build(self) -> Result<Client, Error> {
         Client::with_retry_config(self.retry_config).await
     }
 }

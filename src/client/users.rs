@@ -1,19 +1,19 @@
-use crate::client::client::Client;
-use crate::models::client::SoundcloudIdentifier;
+use crate::models::client::Client;
+use crate::models::client::Identifier;
+use crate::models::error::Error;
 use crate::models::query::{Paging, UsersQuery};
 use crate::models::response::{Playlists, Reposts, Tracks, User, Users};
-use std::error::Error;
 
 impl Client {
-    pub async fn search_users(&self, query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>> {
+    pub async fn search_users(&self, query: Option<&UsersQuery>) -> Result<Users, Error> {
         let resp: Users = self.get("search/users", query).await?;
         Ok(resp)
     }
 
     pub async fn get_user(
         &self,
-        identifier: &SoundcloudIdentifier,
-    ) -> Result<User, Box<dyn Error>> {
+        identifier: &Identifier,
+    ) -> Result<User, Error> {
         let url = format!("users/{identifier}");
         let resp: User = self.get(&url, None::<&()>).await?;
         Ok(resp)
@@ -21,9 +21,9 @@ impl Client {
 
     pub async fn get_user_followers(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Users, Box<dyn Error>> {
+    ) -> Result<Users, Error> {
         let url = format!("users/{identifier}/followers");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
@@ -31,9 +31,9 @@ impl Client {
 
     pub async fn get_user_followings(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Users, Box<dyn Error>> {
+    ) -> Result<Users, Error> {
         let url = format!("users/{identifier}/followings");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
@@ -41,9 +41,9 @@ impl Client {
 
     pub async fn get_user_playlists(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Playlists, Box<dyn Error>> {
+    ) -> Result<Playlists, Error> {
         let url = format!("users/{identifier}/playlists");
         let resp: Playlists = self.get(&url, pagination).await?;
         Ok(resp)
@@ -51,9 +51,9 @@ impl Client {
 
     pub async fn get_user_tracks(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Tracks, Box<dyn Error>> {
+    ) -> Result<Tracks, Error> {
         let url = format!("users/{identifier}/tracks");
         let resp: Tracks = self.get(&url, pagination).await?;
         Ok(resp)
@@ -61,12 +61,12 @@ impl Client {
 
     pub async fn get_user_reposts(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Reposts, Box<dyn Error>> {
+    ) -> Result<Reposts, Error> {
         let id = match identifier {
-            SoundcloudIdentifier::Id(id) => id.to_string(),
-            SoundcloudIdentifier::Urn(urn) => urn
+            Identifier::Id(id) => id.to_string(),
+            Identifier::Urn(urn) => urn
                 .split(':')
                 .last()
                 .expect("Could not extract ID from URN")

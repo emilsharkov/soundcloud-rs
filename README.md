@@ -11,7 +11,7 @@ cargo add soundcloud-rs
 ## Quickstart
 
 ```rust
-use soundcloud_rs::{Client, SoundcloudIdentifier, query::TracksQuery, response::StreamType};
+use soundcloud_rs::{Client, Identifier, query::TracksQuery, response::StreamType};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Download the track (HLS via ffmpeg, see notes below)
     client
-        .download_track(&SoundcloudIdentifier::Id(first_track_id), Some(&StreamType::Hls), Some("./downloads"), None)
+        .download_track(&Identifier::Id(first_track_id), Some(&StreamType::Hls), Some("./downloads"), None)
         .await?;
 
     Ok(())
@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Advanced: Using ClientBuilder for Custom Retry Configuration
 
 ```rust
-use soundcloud_rs::{ClientBuilder, SoundcloudIdentifier, query::TracksQuery};
+use soundcloud_rs::{ClientBuilder, Identifier, query::TracksQuery};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Search, get, and download a track
 ```rust
-use soundcloud_rs::{Client, SoundcloudIdentifier, query::TracksQuery, response::StreamType};
+use soundcloud_rs::{Client, Identifier, query::TracksQuery, response::StreamType};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -71,11 +71,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get a specific track
     let track_id = first_track.id.expect("missing track id");
-    let track = client.get_track(&SoundcloudIdentifier::Id(track_id)).await?;
+    let track = client.get_track(&Identifier::Id(track_id)).await?;
 
     // Download the track (Progressive example)
     client
-        .download_track(&SoundcloudIdentifier::Id(track_id), Some(&StreamType::Progressive), Some("./downloads"), None)
+        .download_track(&Identifier::Id(track_id), Some(&StreamType::Progressive), Some("./downloads"), None)
         .await?;
 
     Ok(())
@@ -84,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Search, fetch, and download a playlist
 ```rust
-use soundcloud_rs::{Client, SoundcloudIdentifier, query::PlaylistsQuery};
+use soundcloud_rs::{Client, Identifier, query::PlaylistsQuery};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -97,10 +97,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get a specific playlist
     let playlist_id = first_playlist.id.expect("missing playlist id");
-    let playlist = client.get_playlist(&SoundcloudIdentifier::Id(playlist_id as i64)).await?;
+    let playlist = client.get_playlist(&Identifier::Id(playlist_id as i64)).await?;
 
     // Download the playlist
-    client.download_playlist(&SoundcloudIdentifier::Id(playlist_id as i64), Some("./downloads"), None).await?;
+    client.download_playlist(&Identifier::Id(playlist_id as i64), Some("./downloads"), None).await?;
 
     Ok(())
 }
@@ -108,7 +108,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Get user information, followers, tracks, and playlists
 ```rust
-use soundcloud_rs::{Client, SoundcloudIdentifier, query::Paging};
+use soundcloud_rs::{Client, Identifier, query::Paging};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -116,37 +116,37 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Get a specific user
     let user_id = 123456789;
-    let user = client.get_user(&SoundcloudIdentifier::Id(user_id)).await?;
+    let user = client.get_user(&Identifier::Id(user_id)).await?;
     println!("User: {}", user.username.unwrap_or_default());
 
     // Get user's followers
-    let followers = client.get_user_followers(&SoundcloudIdentifier::Id(user_id), None::<&Paging>).await?;
+    let followers = client.get_user_followers(&Identifier::Id(user_id), None::<&Paging>).await?;
     println!("User has {} followers", followers.collection.len());
 
     // Get user's tracks
-    let user_tracks = client.get_user_tracks(&SoundcloudIdentifier::Id(user_id), None::<&Paging>).await?;
+    let user_tracks = client.get_user_tracks(&Identifier::Id(user_id), None::<&Paging>).await?;
     println!("User has {} tracks", user_tracks.collection.len());
 
     // Get user's playlists
-    let user_playlists = client.get_user_playlists(&SoundcloudIdentifier::Id(user_id), None::<&Paging>).await?;
+    let user_playlists = client.get_user_playlists(&Identifier::Id(user_id), None::<&Paging>).await?;
     println!("User has {} playlists", user_playlists.collection.len());
 
     Ok(())
 }
 ```
 
-## SoundcloudIdentifier
+## Identifier
 
-The library now uses a `SoundcloudIdentifier` enum to handle different types of SoundCloud resource identifiers:
+The library uses an `Identifier` enum to handle different types of SoundCloud resource identifiers:
 
 ```rust
-use soundcloud_rs::SoundcloudIdentifier;
+use soundcloud_rs::Identifier;
 
 // Use numeric ID
-let track_id = SoundcloudIdentifier::Id(123456789);
+let track_id = Identifier::Id(123456789);
 
 // Use URN (useful for some API endpoints)
-let track_urn = SoundcloudIdentifier::Urn("soundcloud:tracks:123456789".to_string());
+let track_urn = Identifier::Urn("soundcloud:tracks:123456789".to_string());
 ```
 
 This provides better type safety and flexibility when working with SoundCloud resources.
@@ -156,52 +156,52 @@ This provides better type safety and flexibility when working with SoundCloud re
 ### Core Client Methods
 
 #### Creating a Client
-- **`Client::new() -> Result<Self, Box<dyn Error>>`**: Initialize the client with default retry configuration by discovering a `client_id`.
-- **`Client::with_retry_config(retry_config: RetryConfig) -> Result<Self, Box<dyn Error>>`**: Initialize the client with custom retry configuration.
+- **`Client::new() -> Result<Self, Error>`**: Initialize the client with default retry configuration by discovering a `client_id`.
+- **`Client::with_retry_config(retry_config: RetryConfig) -> Result<Self, Error>`**: Initialize the client with custom retry configuration.
 
 #### ClientBuilder (Recommended for Custom Configuration)
 - **`ClientBuilder::new() -> Self`**: Create a new builder with default retry configuration.
 - **`with_max_retries(max_retries: u32) -> Self`**: Set the maximum number of retry attempts (default: 1).
 - **`with_retry_on_401(retry_on_401: bool) -> Self`**: Enable or disable retrying on 401 Unauthorized responses (default: true).
-- **`build() -> Result<Client, Box<dyn Error>>`**: Build the client with the configured settings.
+- **`build() -> Result<Client, Error>`**: Build the client with the configured settings.
 
 #### Client Management
-- **`refresh_client_id(&self) -> Result<(), Box<dyn Error>>`**: Refresh the client ID by re-discovering it from SoundCloud. Useful if you encounter 401 errors.
+- **`refresh_client_id(&self) -> Result<(), Error>`**: Refresh the client ID by re-discovering it from SoundCloud. Useful if you encounter 401 errors.
 - **`get_client_id_value(&self) -> String`**: Get the current client ID value.
 
 #### Low-Level API Methods
-- **`get<Q: Serialize, R: DeserializeOwned>(&self, path: &str, query: Option<&Q>) -> Result<R, Box<dyn Error>>`**: Perform a GET request against the SoundCloud API.
-- **`get_json<R: DeserializeOwned, Q: Serialize>(base_url: &str, path: Option<&str>, query: Option<&Q>, client_id: &str) -> Result<(R, u16), Box<dyn Error>>`**: Static helper to GET JSON from any base URL. Returns both the response body and HTTP status code.
+- **`get<Q: Serialize, R: DeserializeOwned>(&self, path: &str, query: Option<&Q>) -> Result<R, Error>`**: Perform a GET request against the SoundCloud API.
+- **`get_json<R: DeserializeOwned, Q: Serialize>(base_url: &str, path: Option<&str>, query: Option<&Q>, client_id: &str) -> Result<(R, u16), Error>`**: Static helper to GET JSON from any base URL. Returns both the response body and HTTP status code.
 
 ### Search
-- **`get_search_results(query: Option<&SearchResultsQuery>) -> Result<SearchResultsResponse, Box<dyn Error>>`**
-- **`search_all(query: Option<&SearchAllQuery>) -> Result<SearchAllResponse, Box<dyn Error>>`**
+- **`get_search_results(query: Option<&SearchResultsQuery>) -> Result<SearchResultsResponse, Error>`**
+- **`search_all(query: Option<&SearchAllQuery>) -> Result<SearchAllResponse, Error>`**
 
 ### Tracks
-- **`search_tracks(query: Option<&TracksQuery>) -> Result<Tracks, Box<dyn Error>>`**
-- **`get_track(identifier: &SoundcloudIdentifier) -> Result<Track, Box<dyn Error>>`**
-- **`get_track_related(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
-- **`download_track(identifier: &SoundcloudIdentifier, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Box<dyn Error>>`**
-- **`get_stream_url(identifier: &SoundcloudIdentifier, stream_type: Option<&StreamType>) -> Result<String, Box<dyn Error>>`**
-- **`get_track_waveform(identifier: &SoundcloudIdentifier) -> Result<Waveform, Box<dyn Error>>`**
+- **`search_tracks(query: Option<&TracksQuery>) -> Result<Tracks, Error>`**
+- **`get_track(identifier: &Identifier) -> Result<Track, Error>`**
+- **`get_track_related(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Tracks, Error>`**
+- **`download_track(identifier: &Identifier, stream_type: Option<&StreamType>, destination: Option<&str>, filename: Option<&str>) -> Result<(), Error>`**
+- **`get_stream_url(identifier: &Identifier, stream_type: Option<&StreamType>) -> Result<String, Error>`**
+- **`get_track_waveform(identifier: &Identifier) -> Result<Waveform, Error>`**
 
 ### Playlists
-- **`search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Box<dyn Error>>`**
-- **`get_playlist(identifier: &SoundcloudIdentifier) -> Result<Playlist, Box<dyn Error>>`**
-- **`get_playlist_reposters(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`download_playlist(identifier: &SoundcloudIdentifier, destination: Option<&str>, playlist_name: Option<&str>) -> Result<(), Box<dyn Error>>`**
+- **`search_playlists(query: Option<&PlaylistsQuery>) -> Result<Playlists, Error>`**
+- **`get_playlist(identifier: &Identifier) -> Result<Playlist, Error>`**
+- **`get_playlist_reposters(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Users, Error>`**
+- **`download_playlist(identifier: &Identifier, destination: Option<&str>, playlist_name: Option<&str>) -> Result<(), Error>`**
 
 ### Albums
-- **`search_albums(query: Option<&AlbumQuery>) -> Result<Playlists, Box<dyn Error>>`**
+- **`search_albums(query: Option<&AlbumQuery>) -> Result<Playlists, Error>`**
 
 ### Users
-- **`search_users(query: Option<&UsersQuery>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user(identifier: &SoundcloudIdentifier) -> Result<User, Box<dyn Error>>`**
-- **`get_user_followers(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_followings(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Users, Box<dyn Error>>`**
-- **`get_user_playlists(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Playlists, Box<dyn Error>>`**
-- **`get_user_tracks(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Tracks, Box<dyn Error>>`**
-- **`get_user_reposts(identifier: &SoundcloudIdentifier, pagination: Option<&Paging>) -> Result<Reposts, Box<dyn Error>>`**
+- **`search_users(query: Option<&UsersQuery>) -> Result<Users, Error>`**
+- **`get_user(identifier: &Identifier) -> Result<User, Error>`**
+- **`get_user_followers(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Users, Error>`**
+- **`get_user_followings(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Users, Error>`**
+- **`get_user_playlists(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Playlists, Error>`**
+- **`get_user_tracks(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Tracks, Error>`**
+- **`get_user_reposts(identifier: &Identifier, pagination: Option<&Paging>) -> Result<Reposts, Error>`**
 
 ## Retry Configuration
 
@@ -228,13 +228,20 @@ When a 401 error occurs, the client will automatically refresh the client ID and
 - **Progressive downloads** are saved directly without FFmpeg.
 - If your environment blocks downloads or requires proxies, the automatic FFmpeg download may fail; in that case, configure your network accordingly before using HLS.
 
-## Changelog
+## Error Handling
 
-### v0.11.0
-- **BREAKING**: All API methods now use `SoundcloudIdentifier` instead of raw `i64` or `&str` for resource identifiers
-- Added `SoundcloudIdentifier` enum supporting both numeric IDs and URNs
-- Improved type safety across all API methods
-- Updated all examples and documentation to reflect the new identifier system
+The library uses a custom `Error` type that implements `std::error::Error + Send + Sync` for async compatibility. All API methods return `Result<T, Error>`.
+
+```rust
+use soundcloud_rs::{Client, Error};
+
+match client.search_tracks(None).await {
+    Ok(tracks) => println!("Found {} tracks", tracks.collection.len()),
+    Err(e) => eprintln!("Error: {}", e),
+}
+```
+
+The `Error` type can be converted to `Box<dyn std::error::Error>` if needed for compatibility with other error handling libraries.
 
 ## License
 

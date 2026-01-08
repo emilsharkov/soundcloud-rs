@@ -1,12 +1,10 @@
-use std::error::Error;
-
-use crate::{Client, models::query::AlbumQuery, response::Playlists};
+use crate::{Client, models::query::AlbumQuery, models::error::Error, response::Playlists};
 
 impl Client {
     pub async fn search_albums(
         &self,
         query: Option<&AlbumQuery>,
-    ) -> Result<Playlists, Box<dyn Error>> {
+    ) -> Result<Playlists, Error> {
         let resp: Playlists = self.get("search/albums", query).await?;
         Ok(resp)
     }

@@ -1,23 +1,23 @@
-use crate::client::client::Client;
-use crate::models::client::SoundcloudIdentifier;
+use crate::models::client::Client;
+use crate::models::client::Identifier;
+use crate::models::error::Error;
 use crate::models::query::{Paging, PlaylistsQuery};
 use crate::models::response::{Playlist, Playlists, Users};
-use std::error::Error;
 use std::path::PathBuf;
 
 impl Client {
     pub async fn search_playlists(
         &self,
         query: Option<&PlaylistsQuery>,
-    ) -> Result<Playlists, Box<dyn Error>> {
+    ) -> Result<Playlists, Error> {
         let resp: Playlists = self.get("search/playlists", query).await?;
         Ok(resp)
     }
 
     pub async fn get_playlist(
         &self,
-        identifier: &SoundcloudIdentifier,
-    ) -> Result<Playlist, Box<dyn Error>> {
+        identifier: &Identifier,
+    ) -> Result<Playlist, Error> {
         let url = format!("playlists/{identifier}");
         let resp: Playlist = self.get(&url, None::<&()>).await?;
         Ok(resp)
@@ -25,9 +25,9 @@ impl Client {
 
     pub async fn get_playlist_reposters(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         pagination: Option<&Paging>,
-    ) -> Result<Users, Box<dyn Error>> {
+    ) -> Result<Users, Error> {
         let url = format!("playlists/{identifier}/reposters");
         let resp: Users = self.get(&url, pagination).await?;
         Ok(resp)
@@ -35,10 +35,10 @@ impl Client {
 
     pub async fn download_playlist(
         &self,
-        identifier: &SoundcloudIdentifier,
+        identifier: &Identifier,
         destination: Option<&str>,
         playlist_name: Option<&str>,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), Error> {
         let playlist = self.get_playlist(identifier).await?;
 
         let playlist_title = match playlist_name {
@@ -62,7 +62,7 @@ impl Client {
             let identifier = track.id.as_ref().expect("Missing track id");
             if let Err(e) = self
                 .download_track(
-                    &SoundcloudIdentifier::Id(*identifier),
+                    &Identifier::Id(*identifier),
                     None,
                     Some(output_path_str),
                     None,

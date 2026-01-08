@@ -1,42 +1,23 @@
 use regex::Regex;
 use serde::{Serialize, de::DeserializeOwned};
-use std::error::Error;
 use tokio::sync::RwLock;
 
 use crate::constants::{SOUNDCLOUD_API_URL, SOUNDCLOUD_URL};
-
-#[derive(Debug, Clone)]
-pub struct RetryConfig {
-    pub max_retries: u32,
-    pub retry_on_401: bool,
-}
-
-impl Default for RetryConfig {
-    fn default() -> Self {
-        Self {
-            max_retries: 1,
-            retry_on_401: true,
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Client {
-    client_id: RwLock<String>,
-    retry_config: RetryConfig,
-}
+use crate::models::client::Client;
+use crate::models::config::RetryConfig;
+use crate::models::error::Error;
 
 impl Client {
-    pub async fn new() -> Result<Self, Box<dyn Error>> {
+    pub async fn new() -> Result<Self, Error> {
         Self::with_retry_config(RetryConfig::default()).await
     }
 
-    pub async fn with_retry_config(retry_config: RetryConfig) -> Result<Self, Box<dyn Error>> {
+    pub async fn with_retry_config(retry_config: RetryConfig) -> Result<Self, Error> {
         let client_id = Self::get_client_id().await?;
         Ok(Self { client_id: RwLock::new(client_id), retry_config })
     }
 
-    pub async fn refresh_client_id(&self) -> Result<(), Box<dyn Error>> {
+    pub async fn refresh_client_id(&self) -> Result<(), Error> {
         let new_client_id = Self::get_client_id().await?;
         *self.client_id.write().await = new_client_id;
         Ok(())
@@ -51,7 +32,7 @@ impl Client {
         path: Option<&str>,
         query: Option<&Q>,
         client_id: &str,
-    ) -> Result<(R, u16), Box<dyn Error>> {
+    ) -> Result<(R, u16), Error> {
         let url = match path {
             Some(path) => format!(
                 "{}/{}",
@@ -71,20 +52,20 @@ impl Client {
 
         let response = request.send().await.map_err(|e| {
             println!("Error sending request: {e}");
-            Box::new(e) as Box<dyn Error>
+            Error::from(e)
         })?;
 
         let status = response.status().as_u16();
 
         if !response.status().is_success() {
             let text = response.text().await.unwrap_or_default();
-            return Err(format!("HTTP {}: {}", status, text).into());
+            return Err(Error::new(format!("HTTP {}: {}", status, text)));
         }
 
         // Parse JSON body for successful responses
         let body = response.json::<R>().await.map_err(|e| {
             println!("Error parsing response: {e}");
-            Box::new(e) as Box<dyn Error>
+            Error::from(e)
         })?;
 
         Ok((body, status))
@@ -94,7 +75,7 @@ impl Client {
         &self,
         path: &str,
         query: Option<&Q>,
-    ) -> Result<R, Box<dyn Error>> {
+    ) -> Result<R, Error> {
         let mut retries = 0;
         let max_retries = self.retry_config.max_retries;
 
@@ -124,7 +105,7 @@ impl Client {
         }
     }
 
-    async fn get_script_urls() -> Result<Vec<String>, Box<dyn Error>> {
+    async fn get_script_urls() -> Result<Vec<String>, Error> {
         let response = reqwest::get(SOUNDCLOUD_URL).await?;
         let text = response.text().await?;
         let re = Regex::new(r#"https?://[^\s"]+\.js"#).expect("Failed to find script URLs");
@@ -135,7 +116,7 @@ impl Client {
         Ok(urls)
     }
 
-    async fn find_client_id(url: String) -> Result<Option<String>, Box<dyn Error>> {
+    async fn find_client_id(url: String) -> Result<Option<String>, Error> {
         let response = reqwest::get(url).await?;
         let text = response.text().await?;
         let re = Regex::new(r#"client_id[:=]"?(\w{32})"#).expect("Failed to find client ID");
@@ -145,7 +126,7 @@ impl Client {
         Ok(None)
     }
 
-    async fn get_client_id() -> Result<String, Box<dyn Error>> {
+    async fn get_client_id() -> Result<String, Error> {
         let script_urls = Self::get_script_urls().await?;
         for url in script_urls {
             let client_id = Self::find_client_id(url).await?;
@@ -153,6 +134,6 @@ impl Client {
                 return Ok(client_id);
             }
         }
-        Err("Client ID not found".into())
+        Err(Error::new("Client ID not found"))
     }
 }
