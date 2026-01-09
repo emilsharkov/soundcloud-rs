@@ -168,6 +168,7 @@ This provides better type safety and flexibility when working with SoundCloud re
 #### Client Management
 - **`refresh_client_id(&self) -> Result<(), Error>`**: Refresh the client ID by re-discovering it from SoundCloud. Useful if you encounter 401 errors.
 - **`get_client_id_value(&self) -> String`**: Get the current client ID value.
+- **`health_check(&self) -> bool`**: Health check endpoint that calls `/me` on the API. Returns `true` if the API responds successfully (2xx), `false` otherwise.
 
 #### Low-Level API Methods
 - **`get<Q: Serialize, R: DeserializeOwned>(&self, path: &str, query: Option<&Q>) -> Result<R, Error>`**: Perform a GET request against the SoundCloud API.
@@ -241,7 +242,6 @@ match client.search_tracks(None).await {
 }
 ```
 
-The `Error` type can be converted to `Box<dyn std::error::Error>` if needed for compatibility with other error handling libraries.
 
 ## License
 
