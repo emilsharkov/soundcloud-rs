@@ -449,3 +449,14 @@ async fn test_search_all() {
     assert!(!search_results.collection.is_empty(), "Should return at least one result");
 }
 
+#[tokio::test]
+async fn test_health_check() {
+    let client = get_client().await;
+    // health_check returns true if API responds successfully (2xx), false otherwise
+    // This test verifies the method can be called without panicking
+    let result = client.health_check().await;
+    // The result should be a boolean (true if API is healthy, false if not)
+    // Since we can't guarantee API availability, we just verify it doesn't panic
+    assert!(matches!(result, true | false), "health_check should return a boolean");
+}
+

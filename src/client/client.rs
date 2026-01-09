@@ -1,5 +1,6 @@
 use regex::Regex;
 use serde::{Serialize, de::DeserializeOwned};
+use serde_json::Value;
 use tokio::sync::RwLock;
 
 use crate::constants::{SOUNDCLOUD_API_URL, SOUNDCLOUD_URL};
@@ -135,5 +136,11 @@ impl Client {
             }
         }
         Err(Error::new("Client ID not found"))
+    }
+
+    /// Health check endpoint that calls /me on the API
+    /// Returns true if the API responds successfully (2xx), false otherwise
+    pub async fn health_check(&self) -> bool {
+        self.get::<(), Value>("me", None).await.is_ok()
     }
 }
